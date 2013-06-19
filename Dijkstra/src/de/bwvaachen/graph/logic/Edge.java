@@ -2,42 +2,28 @@ package de.bwvaachen.graph.logic;
 
 public class Edge {
 
-	private Number weight;
-	private boolean isMarked;
-	
+	private double weight;
+
 	public Number getWeight() {
+		if(weight==(int)weight)
+			return new Integer((int)weight);
 		return weight;
 	}
 
-
-	public void setWeight(Number weight) {
-		if(weight==null || weight.doubleValue()<0)
+	public void setWeight(double weight) {
+		if ( weight < 0)
 			throw new IllegalArgumentException();
 		this.weight = weight;
 	}
 
+	public Edge() {
+	}
+
 	public Edge(Number weight) {
-		setWeight(weight);
+		setWeight(weight.doubleValue());
 	}
 
-	
 	public Edge(Edge edge) {
-		if(edge.getWeight() instanceof Integer)
-		weight=new Integer(edge.getWeight().intValue());
-		else if(edge.getWeight() instanceof Double)
-		weight=new Double(edge.getWeight().doubleValue());
-		else
-			throw new IllegalArgumentException();
+		weight = edge.getWeight().doubleValue();
 	}
-
-
-	public boolean isMarked() {
-		return isMarked;
-	}
-	
-	public void setMarked(boolean isMarked) {
-		this.isMarked = isMarked;
-	}
-
-	
 }

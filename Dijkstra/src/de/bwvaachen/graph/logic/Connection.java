@@ -1,10 +1,15 @@
 package de.bwvaachen.graph.logic;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 public class Connection implements Comparable<Connection>{
 
 	private Node startNode,endNode;//TODO NO NULLS
 	private Edge edge;
 	
+	public Connection() {
+		// TODO Auto-generated constructor stub
+	}
 	public Connection(Node node1, Node node2, Edge edge) {
 		startNode=node1;
 		endNode=node2;
@@ -16,16 +21,16 @@ public class Connection implements Comparable<Connection>{
 		endNode=new Node(c.getEndNode());
 		edge=new Edge(c.getEdge());
 	}
-
-	public double getWeight() {
+	
+	public double weight() {
 		return edge.getWeight().doubleValue();
 	}
 
 	@Override
 	public int compareTo(Connection o) {
-		if(getWeight()>o.getWeight())
+		if(weight()>o.weight())
 			return 1;
-		else if(getWeight()<o.getWeight())
+		else if(weight()<o.weight())
 				return -1;
 		return 0;
 	}
@@ -67,7 +72,7 @@ public class Connection implements Comparable<Connection>{
 			Connection c2=(Connection)obj;
 			boolean boolNode1=(getStartNode().equals(c2.getStartNode())|| getStartNode().equals(c2.getEndNode()));
 			boolean boolNode2=(getEndNode().equals(c2.getStartNode())|| getEndNode().equals(c2.getEndNode()));
-			boolean boolEdge=c2.getWeight()==getWeight();
+			boolean boolEdge=c2.weight()==weight();
 			return boolEdge && boolNode1 && boolNode2;
 		}
 		return false;

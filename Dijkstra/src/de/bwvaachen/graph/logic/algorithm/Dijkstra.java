@@ -99,7 +99,7 @@ public class Dijkstra {
 	 }
 
 	private void distance_Update(WeightedNode node,WeightedNode neighbour, Connection connection) {
-		double distance=connection.getWeight()+node.getWeight().doubleValue();
+		double distance=connection.weight()+node.getWeight().doubleValue();
 		
 		
 		if(distance<neighbour.getWeight().doubleValue())
@@ -121,7 +121,7 @@ public class Dijkstra {
 //	7   return Weg[]
 	public  Path getShortestPath(Node end)
 	{		
-		SortedSet<Connection>connections=graph.getSortedConnections();
+		List<Connection>connections=graph.getSortedConnections();
 		Node node=end;
 		
 		List<Connection>pathConnections=new LinkedList<Connection>();

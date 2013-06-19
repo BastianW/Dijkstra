@@ -2,7 +2,9 @@ package de.bwvaachen.graph.logic;
 
 public class Node {
 	private String name;
-	
+	public Node() {
+		// TODO Auto-generated constructor stub
+	}
 	public Node(String name) {
 		this.name=name;
 	}

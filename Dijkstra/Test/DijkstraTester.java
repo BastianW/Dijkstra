@@ -26,14 +26,15 @@ public class DijkstraTester {
 		public void actionPerformed(ActionEvent e) {
 			try {
 			Graph graph=adjazenzmatrixView.getGraph();
-			Object[] array = graph.getNodes().toArray();
-			int index=(int)(Math.random()*array.length);
-			Node startNode=new Node("B");
-			Node endNode=new Node("A");
-			System.out.println("Startnode: "+startNode);
-			Dijkstra dijkstra=new Dijkstra(graph, startNode);
-			dijkstra.doDijkstra();
-			System.out.println(dijkstra.getShortestPath(endNode));
+			graph.save("Test.txt");
+			Graph testGraph=Graph.load("Test.txt");
+			System.out.println("Hallo");
+//			Node startNode=new Node("B");
+//			Node endNode=new Node("A");
+//			System.out.println("Startnode: "+startNode);
+//			Dijkstra dijkstra=new Dijkstra(graph, startNode);
+//			dijkstra.doDijkstra();
+//			System.out.println(dijkstra.getShortestPath(endNode));
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -43,6 +44,7 @@ public class DijkstraTester {
 	frame.add(button,BorderLayout.SOUTH);
 	frame.add( adjazenzmatrixView, BorderLayout.CENTER);
 	frame.doLayout();
+	button.doClick();
 }
 
 private static JFrame getFrame()

@@ -10,7 +10,9 @@ public class Path implements Comparable<Path> {
 
 	private Node startNode,endNode;
 	private LinkedList<Connection> connections=new LinkedList<Connection>();
-	
+	public Path() {
+		// TODO Auto-generated constructor stub
+	}
 	public Path(Connection ... connections) {
 		if(connections==null||connections.length==0)
 			throw new IllegalArgumentException();
@@ -41,7 +43,7 @@ public class Path implements Comparable<Path> {
 		double weight=0;
 		for(Connection connection:connections)
 		{
-			weight+=connection.getWeight();
+			weight+=connection.weight();
 		}
 		Double d=new Double(weight);
 		if(d.intValue()==d.doubleValue())

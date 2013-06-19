@@ -103,9 +103,9 @@ public class AdjazenzmatrixView extends JPanel {
 		return textField;
 	}
 
-	private Set<Connection> getSortedConnectionSet(Node[] nodes) 
+	private List<Connection> getSortedConnectionList(Node[] nodes) 
 	{
-		Set<Connection> resultSet = new TreeSet<Connection>();
+		List<Connection> resultSet = new LinkedList<Connection>();
 
 		
 
@@ -138,7 +138,7 @@ public class AdjazenzmatrixView extends JPanel {
 			throw new Exception();
 		Node[] nodes = getNodes();
 
-		Set<Connection> sortedConnectionSet = getSortedConnectionSet(nodes);
+		List<Connection> sortedConnectionSet = getSortedConnectionList(nodes);
 		Set<Node>nodeSet=new HashSet<Node>();
 		for(Node n: nodes)
 		{

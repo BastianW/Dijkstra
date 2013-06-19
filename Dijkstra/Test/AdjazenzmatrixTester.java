@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.SortedSet;
 
 import javax.swing.JButton;
@@ -36,7 +37,7 @@ public class AdjazenzmatrixTester {
 				try {
 
 							Graph graph=adjazenzmatrixView.getGraph();
-							SortedSet<Connection> sortedConnectionList =graph.getSortedConnections();
+							List<Connection> sortedConnectionList =graph.getSortedConnections();
 					for(Connection c: sortedConnectionList)
 					{
 						System.out.println(c);
