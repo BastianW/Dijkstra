@@ -24,6 +24,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import javax.swing.JLabel;
+import com.jgoodies.forms.factories.DefaultComponentFactory;
+import javax.swing.JScrollPane;
 
 public class MainWindow extends JFrame {
 
@@ -75,6 +77,12 @@ public class MainWindow extends JFrame {
 		JMenuItem mntmNewGraph = new JMenuItem("New Graph");
 		mnNew.add(mntmNewGraph);
 		mnFile.add(mntmExit);
+		
+		JMenu mnHelp = new JMenu("Help");
+		menuBar.add(mnHelp);
+		
+		JMenuItem mntmAboutTolleflugbuchung = new JMenuItem("About TolleFlugBuchung");
+		mnHelp.add(mntmAboutTolleflugbuchung);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -92,6 +100,13 @@ public class MainWindow extends JFrame {
 		gbc_tabbedPane.gridx = 0;
 		gbc_tabbedPane.gridy = 0;
 		contentPane.add(tabbedPane, gbc_tabbedPane);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		tabbedPane.addTab("New tab", null, scrollPane, null);
+		
+		JPanel panel = new JPanel();
+		scrollPane.setViewportView(panel);
+		panel.setLayout(null);
 		
 		JProgressBar progressBar = new JProgressBar();
 		this.progressBar = progressBar;
