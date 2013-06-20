@@ -16,128 +16,122 @@ import de.bwvaachen.graph.logic.Path;
 
 public class Dijkstra {
 
-	List<Connection>connectionList;
-	
-	HashMap<Node, Node>previousNodes;
-	LinkedList<WeightedNode>nodes;
-	
-	private boolean isFinished=false;
-	private int currentStepCounter=0;
-	
+	List<Connection> connectionList;
+
+	HashMap<Node, Node> previousNodes;
+	LinkedList<WeightedNode> nodes;
+
+	private boolean isFinished = false;
+	private int currentStepCounter = 0;
+
 	private Graph graph;
 
 	private Node start;
+
 	public Dijkstra(Graph graph, Node startNode) {
-		if(graph==null||startNode==null)
+		if (graph == null || startNode == null)
 			throw new IllegalArgumentException();
-		this.graph=graph;
-		this.start=startNode;
+		this.graph = graph;
+		this.start = startNode;
 	}
-	
-	
-	private void initialisiere() {
-		connectionList=new LinkedList<Connection>(graph.getSortedConnections());
-		previousNodes=new HashMap<Node, Node>();
-		nodes=new LinkedList<WeightedNode>();//TODO create and sort WeightedNodes
+
+	private void init() {
+		connectionList = new LinkedList<Connection>(
+				graph.getSortedConnections());
+		previousNodes = new HashMap<Node, Node>();
+		nodes = new LinkedList<WeightedNode>();// TODO create and sort
+												// WeightedNodes
 		Set<Node> nodeSet = graph.getNodes();
-		for(Node node:nodeSet)
-		{
-			if(node.equals(start))
-			{
-				nodes.add(new WeightedNode(node,new Integer(0)));
-			}
-			else
-			{
-			nodes.add(new WeightedNode(node,Double.MAX_VALUE));
+		for (Node node : nodeSet) {
+			if (node.equals(start)) {
+				nodes.add(new WeightedNode(node, new Integer(0)));
+			} else {
+				nodes.add(new WeightedNode(node, Double.MAX_VALUE));
 			}
 			previousNodes.put(node, null);
 		}
 		Collections.sort(nodes);
 	}
-	private WeightedNode getWeightedNode(Node node)
-	{
-		for(WeightedNode wNode:nodes)
-		{
-			if(wNode.equals(node))
-			{
+
+	private WeightedNode getWeightedNode(Node node) {
+		for (WeightedNode wNode : nodes) {
+			if (wNode.equals(node)) {
 				return wNode;
 			}
 		}
 		return null;
 	}
 
-	 public void  doDijkstra()
-	 {	 
-		 initialisiere();
-		 while(!nodes.isEmpty())
-		 {
-			 WeightedNode lightestNode=nodes.getFirst();
-			 nodes.removeFirst();
-			 Node neighbour=null;
-			 
-			 List<Connection>deleteList=new LinkedList<Connection>();
-	       		for(Connection connection:connectionList)
-	       		{
-	       			if(connection.containsNode(lightestNode))
-	       			{
-	       				deleteList.add(connection);
-	       				neighbour=connection.getEndNode();
-	       				if(neighbour.equals(lightestNode))
-	       					neighbour=connection.getStartNode();
-	       				WeightedNode weightedNode=null;
-	       				if((weightedNode = getWeightedNode(neighbour))!=null)
-	       				{
-	       					distance_Update(lightestNode,weightedNode, connection);
-	       				}
-	       				
-	       			}
-	       		}
-	       		connectionList.removeAll(deleteList);
-	       		
-		 }
-		 
-	 }
+	public void doDijkstra() {
+		init();
+		while (!nodes.isEmpty()) {
+			WeightedNode lightestNode = nodes.getFirst();
+			nodes.removeFirst();
+			Node neighbour = null;
 
-	private void distance_Update(WeightedNode node,WeightedNode neighbour, Connection connection) {
-		double distance=connection.weight()+node.getWeight().doubleValue();
-		
-		
-		if(distance<neighbour.getWeight().doubleValue())
-		{
-			if(distance==(int)distance)
-				neighbour.setWeight(new Integer((int)distance));
+			List<Connection> deleteList = new LinkedList<Connection>();
+			for (Connection connection : connectionList) {
+				if (connection.containsNode(lightestNode)) {
+					deleteList.add(connection);
+					neighbour = connection.getEndNode();
+					if (neighbour.equals(lightestNode))
+						neighbour = connection.getStartNode();
+					WeightedNode weightedNode = null;
+					if ((weightedNode = getWeightedNode(neighbour)) != null) {
+						distance_Update(lightestNode, weightedNode, connection);
+					}
+
+				}
+			}
+			connectionList.removeAll(deleteList);
+
+		}
+
+	}
+
+	private void distance_Update(WeightedNode node, WeightedNode neighbour,
+			Connection connection) {
+		double distance = connection.weight() + node.getWeight().doubleValue();
+
+		if (distance < neighbour.getWeight().doubleValue()) {
+			if (distance == (int) distance)
+				neighbour.setWeight(new Integer((int) distance));
 			neighbour.setWeight(new Double(distance));
 			Collections.sort(nodes);
 		}
 		previousNodes.put(neighbour, node);
 	}
 
-//	1  Funktion erstelleKürzestenPfad(Zielknoten,vorgänger[])
-//	2   Weg[] := [Zielknoten]
-//	3   u := Zielknoten
-//	4   solange vorgänger[u] nicht null:   // Der Vorgänger des Startknotens ist null
-//	5       u := vorgänger[u]
-//	6       füge u am Anfang von Weg[] ein
-//	7   return Weg[]
-	public  Path getShortestPath(Node end)
-	{		
-		List<Connection>connections=graph.getSortedConnections();
-		Node node=end;
-		
-		List<Connection>pathConnections=new LinkedList<Connection>();
-		for(Node previousNode=previousNodes.get(node); previousNode!=null;previousNode=previousNodes.get(node))
-		{
-			for(Connection connection:connections)
-			{
-				if(connection.connectNodes(node,previousNode))
-				{
+	public Path getShortestPath(Node end) {
+		List<Connection> connections = graph.getSortedConnections();
+		Node node = end;
+
+		List<Connection> pathConnections = new LinkedList<Connection>();
+		for (Node previousNode = previousNodes.get(node); previousNode != null; previousNode = previousNodes
+				.get(node)) {
+			for (Connection connection : connections) {
+				if (connection.connectNodes(node, previousNode)) {
 					pathConnections.add(connection);
 					break;
 				}
 			}
-			node=previousNode;
+			node = previousNode;
 		}
 		return new Path(pathConnections);
 	}
-	
+
+	public List<Path> getShortestPaths() {
+		List<Path> results = new LinkedList<Path>();
+		for (Node node : graph.getNodes()) {
+			if (nodes.contains(node))
+				continue;
+			Path path = getShortestPath(node);
+			if (!path.isEmpty())
+				continue;
+			results.add(path);
+
+		}
+		return results;
+	}
+
 }

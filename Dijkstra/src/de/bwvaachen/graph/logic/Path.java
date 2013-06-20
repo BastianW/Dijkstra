@@ -215,4 +215,7 @@ public class Path implements Comparable<Path> {
 		
 		return builder.toString();
 	}
+	public boolean isEmpty() {
+		return connections.isEmpty();
+	}
 }

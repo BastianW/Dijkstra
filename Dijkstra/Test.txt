@@ -1,0 +1,1 @@
+{"nodes":[{"name":"A"},{"name":"B"},{"name":"C"}],"paths":[],"sortedConnections":[{"startNode":{"name":"A"},"endNode":{"name":"B"},"edge":{"weight":0}},{"startNode":{"name":"A"},"endNode":{"name":"C"},"edge":{"weight":4}},{"startNode":{"name":"B"},"endNode":{"name":"C"},"edge":{"weight":5}}]}
