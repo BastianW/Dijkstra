@@ -85,5 +85,20 @@ public class Connection implements Comparable<Connection>{
 	public boolean containsNode(Node node) {
 		return node.equals(startNode)||node.equals(endNode);
 	}
+	public Node getTheOtherNode(Node node) {
+		if(node.equals(startNode))
+		{
+			return endNode;
+		}
+		else if(node.equals(endNode))
+			return startNode;
+		return null;
+	}
+	public boolean endsWith(Node node) {
+		return node.equals(endNode);
+	}
+	public boolean startsWith(Node node) {
+		return node.equals(startNode);
+	}
 }
 

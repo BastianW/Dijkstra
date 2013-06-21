@@ -1,22 +1,30 @@
 package de.bwvaachen.graph.gui.input;
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Stroke;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
@@ -40,9 +48,30 @@ public class AdjazenzmatrixView extends JPanel {
 	 * Create the panel.
 	 */
 	public AdjazenzmatrixView(int countNodes, WeightMode mode) {
+		setLayout(new BorderLayout(0, 0));
+		JScrollPane scrollPane=new JScrollPane();
+		add(scrollPane);
+		JPanel panel=new JPanel(){
+			@Override
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if(nodeNames!=null && nodeNames.length>0)
+				{
+				    Graphics2D g2d = (Graphics2D)g;
+				    Stroke stroke = g2d.getStroke();
+				    g2d.setStroke(new BasicStroke(3));
+					Rectangle rec=nodeNames[0].getBounds();
+					g.drawLine(rec.width+3, 0,rec.width+3, this.getHeight());
+					g.drawLine(0, rec.height+2,this.getWidth(), rec.height+2);
+					g2d.setStroke(stroke);
+				}
+			}
+		};
+		
+		
 		this.mode = mode;
 
-		setLayout(new GridLayout(0, countNodes, 10, 5));
+		panel.setLayout(new GridLayout(0, countNodes, 10, 5));
 		nodeNames = new JTextField[countNodes];
 		int countWeights = countNodes - 1;
 
@@ -52,36 +81,36 @@ public class AdjazenzmatrixView extends JPanel {
 			nodeWeigths[i] = new JTextField[countWeights - i];
 		}
 
-		add(new JLabel());
+		panel.add(new JLabel());
 		for (int i = 1; i < countNodes; i++) {
 			JTextField textField = createNodeNameInput(i);
 			nodeNames[i] = textField;
-			add(textField);
+			panel.add(textField);
 		}
 		for (int i = 0; i < countWeights; i++) {
 			if (i == 0) {
 				JTextField textField = createNodeNameInput(i);
 				nodeNames[i] = textField;
-				add(textField);
+				panel.add(textField);
 			} else {
 				JLabel label = new JLabel();
 				labels[i - 1] = label;
-				add(label);
+				panel.add(label);
 			}
 
 			for (int emptyFieldsCounter = 0; emptyFieldsCounter < countWeights
 					- nodeWeigths[i].length; emptyFieldsCounter++) {
-				add(new JLabel());
+				panel.add(new JLabel());
 			}
 			for (int inputFieldIndex = 0; inputFieldIndex < nodeWeigths[i].length; inputFieldIndex++) {
 				JTextField nodeWeightInput = createNodeWeightInput();
 				nodeWeigths[i][inputFieldIndex]=nodeWeightInput;
-				add(nodeWeightInput);
+				panel.add(nodeWeightInput);
 			}
 		}
-
-		System.out.println();
+		scrollPane.setViewportView(panel);
 	}
+
 
 	private JTextField createNodeWeightInput() {
 		JTextField textField = new JTextField(""+(int)(Math.random()*10));
@@ -132,7 +161,7 @@ public class AdjazenzmatrixView extends JPanel {
 		}
 		return nodes;
 	}
-	public Graph getGraph()throws Exception// TODO
+	public Graph getGraph()throws Exception// TODO Exception should be specific
 	{
 		if (!checkNames())
 			throw new Exception();

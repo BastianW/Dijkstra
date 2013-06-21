@@ -14,7 +14,7 @@ import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.algorithm.Dijkstra;
 
 
-public class DijkstraTester {
+public class DijkstraTester extends GUIElementTester{
 	public static void main(String[] args) {
 	JFrame frame=getFrame();
 	frame.setLayout(new BorderLayout());
@@ -45,14 +45,5 @@ public class DijkstraTester {
 	frame.add( adjazenzmatrixView, BorderLayout.CENTER);
 	frame.doLayout();
 	button.doClick();
-}
-
-private static JFrame getFrame()
-{
-	JFrame frame=new JFrame("Test Adjazenzmatrix");
-	frame.setSize(500,500);
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	frame.setVisible(true);
-	return frame;
 }
 }

@@ -13,7 +13,7 @@ import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 
 
-public class AdjazenzmatrixTester {
+public class AdjazenzmatrixTester extends GUIElementTester{
 
 	/**
 	 * @param args
@@ -29,7 +29,7 @@ public class AdjazenzmatrixTester {
 		JFrame frame=getFrame();
 		frame.setLayout(new BorderLayout());
 		JButton button =new JButton("Test");
-		final AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(3 ,WeightMode.INTEGER_MODE);
+		final AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(7 ,WeightMode.DOUBLE_NULL_ALLOWED_MODE);
 		button.addActionListener(new ActionListener() {
 			
 			@Override
@@ -52,14 +52,4 @@ public class AdjazenzmatrixTester {
 		frame.add( adjazenzmatrixView, BorderLayout.CENTER);
 		frame.doLayout();
 	}
-	
-	private static JFrame getFrame()
-	{
-		JFrame frame=new JFrame("Test Adjazenzmatrix");
-		frame.setSize(500,500);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-		return frame;
-	}
-
 }
