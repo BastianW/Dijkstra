@@ -31,6 +31,7 @@ import javax.swing.UIManager;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
+import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
 

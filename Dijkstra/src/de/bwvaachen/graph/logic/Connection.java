@@ -1,6 +1,5 @@
 package de.bwvaachen.graph.logic;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class Connection implements Comparable<Connection>{
 
@@ -94,10 +93,10 @@ public class Connection implements Comparable<Connection>{
 			return startNode;
 		return null;
 	}
-	public boolean endsWith(Node node) {
+	public boolean endsWith(INode node) {
 		return node.equals(endNode);
 	}
-	public boolean startsWith(Node node) {
+	public boolean startsWith(INode node) {
 		return node.equals(startNode);
 	}
 }

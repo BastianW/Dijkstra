@@ -1,5 +1,6 @@
 package de.bwvaachen.graph.logic.algorithm;
 
+import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 
 public class WeightedNode extends Node implements Comparable<WeightedNode>{
@@ -7,7 +8,7 @@ public class WeightedNode extends Node implements Comparable<WeightedNode>{
 	
 	private Number weight;
 
-	public WeightedNode(Node node, Number weight) {
+	public WeightedNode(INode node, Number weight) {
 		super(node);
 		this.weight=weight;
 	}

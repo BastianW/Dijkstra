@@ -10,7 +10,7 @@ public class InputViewTester extends GUIElementTester {
 		JFrame frame=getFrame();
 		frame.setLayout(new BorderLayout());
 		
-		frame.add(new AdjazenzmatrixInput());
+		frame.add(new AdjazenzmatrixInput(null));
 
 	}
 }

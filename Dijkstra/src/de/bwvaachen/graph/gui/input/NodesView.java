@@ -17,6 +17,7 @@ import de.bwvaachen.graph.gui.input.nodesview.IconTreeRenderer;
 import de.bwvaachen.graph.gui.input.nodesview.PathModel;
 import de.bwvaachen.graph.gui.input.nodesview.PathsModel;
 import de.bwvaachen.graph.logic.Connection;
+import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
 

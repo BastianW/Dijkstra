@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
+import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
 
@@ -33,14 +34,15 @@ public class Dijkstra {
 			throw new IllegalArgumentException();
 		this.graph = graph;
 		this.start = startNode;
+		init();
 	}
 
 	private void init() {
+		currentStepCounter=0;
 		connectionList = new LinkedList<Connection>(
 				graph.getSortedConnections());
 		previousNodes = new HashMap<Node, Node>();
-		nodes = new LinkedList<WeightedNode>();// TODO create and sort
-												// WeightedNodes
+		nodes = new LinkedList<WeightedNode>();
 		Set<Node> nodeSet = graph.getNodes();
 		for (Node node : nodeSet) {
 			if (node.equals(start)) {
@@ -63,30 +65,45 @@ public class Dijkstra {
 	}
 
 	public void doDijkstra() {
-		init();
+
 		while (!nodes.isEmpty()) {
-			WeightedNode lightestNode = nodes.getFirst();
-			nodes.removeFirst();
-			Node neighbour = null;
-
-			List<Connection> deleteList = new LinkedList<Connection>();
-			for (Connection connection : connectionList) {
-				if (connection.containsNode(lightestNode)) {
-					deleteList.add(connection);
-					neighbour = connection.getEndNode();
-					if (neighbour.equals(lightestNode))
-						neighbour = connection.getStartNode();
-					WeightedNode weightedNode = null;
-					if ((weightedNode = getWeightedNode(neighbour)) != null) {
-						distance_Update(lightestNode, weightedNode, connection);
-					}
-
-				}
-			}
-			connectionList.removeAll(deleteList);
-
+			stepForward();
 		}
+	}
+	public void stepForward()
+	{
+		if(!nodes.isEmpty())
+		{
+		WeightedNode lightestNode = nodes.getFirst();
+		nodes.removeFirst();
+		Node neighbour = null;
 
+		List<Connection> deleteList = new LinkedList<Connection>();
+		for (Connection connection : connectionList) {
+			if (connection.containsNode(lightestNode)) {
+				deleteList.add(connection);
+				neighbour = connection.getEndNode();
+				if (neighbour.equals(lightestNode))
+					neighbour = connection.getStartNode();
+				WeightedNode weightedNode = null;
+				if ((weightedNode = getWeightedNode(neighbour)) != null) {
+					distance_Update(lightestNode, weightedNode, connection);
+				}
+
+			}
+		}
+		connectionList.removeAll(deleteList);
+		currentStepCounter++;
+		}
+	}
+	public void stepBackward()
+	{
+		int steps=currentStepCounter-1;
+		init();
+		for(int i=0;i<steps;i++)
+		{
+			stepForward();
+		}
 	}
 
 	private void distance_Update(WeightedNode node, WeightedNode neighbour,

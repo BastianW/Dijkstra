@@ -260,7 +260,7 @@ public class Path implements Comparable<Path> {
 		}
 		else if(connections.getFirst().containsNode(start))
 		{
-			Node lastNode = start;
+			INode lastNode = start;
 
 			Iterator<Connection> iterator = connections
 					.iterator();

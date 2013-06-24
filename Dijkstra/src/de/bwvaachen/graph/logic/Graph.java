@@ -63,7 +63,7 @@ public Graph() {
 		if(node!=null)
 		nodes.add(node);
 	}
-	public void removeNode(Node node)
+	public void removeNode(INode node)
 	{
 		if(node!=null)
 		nodes.remove(node);

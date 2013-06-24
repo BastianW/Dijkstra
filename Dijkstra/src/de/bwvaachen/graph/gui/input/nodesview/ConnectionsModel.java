@@ -23,7 +23,7 @@ public class ConnectionsModel implements INodesViewTreeModel {
 	@Override
 	public Object getChild(int index) {
 		int i = 0;
-		Node node = (Node) parent;
+		Node node = parent;
 		for (Connection connection : connections) {
 			if (connection.containsNode(node)) {
 				if (i == index)

@@ -1,6 +1,7 @@
 package de.bwvaachen.graph.gui.input.nodesview;
 
 import de.bwvaachen.graph.logic.Connection;
+import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 
 public class ConnectionModel implements INodesViewTreeModel{
