@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
+import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
@@ -28,6 +29,8 @@ import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JMenuItem;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class VisualGraph extends JPanel implements IGraphChangedListener{
 
@@ -65,6 +68,12 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 		addPopup(panel, popupMenu);
 		
 		JMenuItem mntmAddNode = new JMenuItem("Add Node");
+		mntmAddNode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				AddNodeDialog addNodeDialog=new AddNodeDialog();
+				addNodeDialog.setVisible(true);
+			}
+		});
 		popupMenu.add(mntmAddNode);
 		
 		JMenuItem mntmAddConnection = new JMenuItem("Add Connection");
@@ -113,7 +122,6 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 					if(connection.containsNode(currentNode))
 					{
 						deleteList.add(connection);
-						
 					}
 				}
 				if(!deleteList.isEmpty())
@@ -184,8 +192,6 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 			
 			Point startPoint=startNode.getOutputAnchor(endNode);
 			Point endPoint=endNode.getOutputAnchor(startNode);
-			
-			//g2d.drawLine(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 			
 			g2d.drawString(connection.getEdge().getWeight().toString(), (startPoint.x-endPoint.x)/2+endPoint.x,(startPoint.y-endPoint.y)/2+endPoint.y);
 		}

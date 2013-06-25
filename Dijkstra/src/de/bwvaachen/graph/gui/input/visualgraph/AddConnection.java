@@ -11,6 +11,7 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.JSpinner;
+import java.awt.Dialog.ModalityType;
 
 public class AddConnection extends JDialog {
 
@@ -33,6 +34,7 @@ public class AddConnection extends JDialog {
 	 * Create the dialog.
 	 */
 	public AddConnection() {
+		setModalityType(ModalityType.APPLICATION_MODAL);
 		setTitle("New Connection");
 		setBounds(100, 100, 443, 201);
 		getContentPane().setLayout(new BorderLayout());
