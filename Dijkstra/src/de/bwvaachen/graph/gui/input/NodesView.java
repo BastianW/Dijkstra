@@ -2,6 +2,7 @@ package de.bwvaachen.graph.gui.input;
 
 import java.awt.BorderLayout;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
@@ -11,21 +12,24 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
+import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
 import de.bwvaachen.graph.gui.input.nodesview.ConnectionsModel;
 import de.bwvaachen.graph.gui.input.nodesview.INodesViewTreeModel;
 import de.bwvaachen.graph.gui.input.nodesview.IconTreeRenderer;
-import de.bwvaachen.graph.gui.input.nodesview.PathModel;
 import de.bwvaachen.graph.gui.input.nodesview.PathsModel;
 import de.bwvaachen.graph.logic.Connection;
-import de.bwvaachen.graph.logic.INode;
+import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
 
-public class NodesView extends JPanel {
+public class NodesView extends JPanel implements IGraphChangedListener{
 
 	LinkedList<Connection> connections;
 	LinkedList<Node> nodes;
 	LinkedList<Path> paths;
+	private JTree tree;
+	private HashSet<IGraphComponentChangedListener>graphComponentListener=new HashSet<IGraphComponentChangedListener>();
 
 	/**
 	 * Create the panel.
@@ -37,19 +41,41 @@ public class NodesView extends JPanel {
 		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane);
 
-		JTree tree = new JTree();
-		this.nodes = new LinkedList<Node>(nodes);
-		this.connections = new LinkedList<Connection>(connections);
-		tree.setModel(new NodeModel());
+		tree = new JTree();
 		tree.setCellRenderer(new IconTreeRenderer());
+		
+		
 		scrollPane.setViewportView(tree);
 
-		this.nodes = new LinkedList<Node>(nodes);
-		this.connections = new LinkedList<Connection>(connections);
-		this.paths = new LinkedList<Path>(paths);
+		init(nodes, connections, paths);
 
 	}
 
+	public NodesView(Graph graph) {
+		this(graph.getNodes(),graph.getSortedConnections(),graph.getPaths());
+
+	}
+	private void init(Collection<Node> nodes,
+			Collection<Connection> connections, Collection<Path> paths) {
+		this.nodes = new LinkedList<Node>(nodes);
+		this.connections = new LinkedList<Connection>(connections);
+		this.paths = new LinkedList<Path>(paths);
+		tree.setModel(new NodeModel());
+	}
+	
+	@Override
+	public void graphChanged(Graph graph) {
+		init(graph.getNodes(),graph.getSortedConnections(),graph.getPaths());		
+	}
+	public void addGraphComponentChangedListener(IGraphComponentChangedListener listener)
+	{
+		graphComponentListener.add(listener);
+	}
+	public void removeGraphComponentChangedListener(IGraphComponentChangedListener listener)
+	{
+		graphComponentListener.remove(listener);
+	}
+	
 	class NodeModel implements TreeModel {
 		@Override
 		public Object getRoot() {

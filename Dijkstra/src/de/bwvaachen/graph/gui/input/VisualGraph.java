@@ -1,9 +1,7 @@
 package de.bwvaachen.graph.gui.input;
 
 import java.awt.BasicStroke;
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -18,17 +16,25 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
+import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
+import javax.swing.JPopupMenu;
+import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JMenuItem;
 
-public class VisualGraph extends JPanel {
+public class VisualGraph extends JPanel implements IGraphChangedListener{
 
 	private HashMap<Node,VisualNode>nodes=new HashMap<Node, VisualNode>();
 	private Graph graph;
 	private JPanel panel;
+	private HashSet<IGraphComponentChangedListener>graphComponentListener=new HashSet<IGraphComponentChangedListener>();
 
 	/**
 	 * Create the panel.
@@ -43,15 +49,95 @@ public class VisualGraph extends JPanel {
 		{
 			@Override
 			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
+				g.setColor(Color.WHITE);
+				g.fillRect(0, 0, getWidth(), getHeight());
+				g.setColor(Color.BLACK);
 				drawPathsAndConnection((Graphics2D) g);
-				//super.paintComponent(g);
+				
+				for(VisualNode node:nodes.values())
+				node.testpaintComponent(g);
+//				
+//				//super.paintComponent(g);
 			}
 		};
+		
+		JPopupMenu popupMenu = new JPopupMenu();
+		addPopup(panel, popupMenu);
+		
+		JMenuItem mntmAddNode = new JMenuItem("Add Node");
+		popupMenu.add(mntmAddNode);
+		
+		JMenuItem mntmAddConnection = new JMenuItem("Add Connection");
+		popupMenu.add(mntmAddConnection);
+		
+		JMenuItem mntmAddPath = new JMenuItem("Add Path");
+		popupMenu.add(mntmAddPath);
 		panel.setLayout(null);
-		add(panel);
-		panel.setSize(800, 800);
+		//add(panel);
+		panel.setSize(430, 430);
 		scrollPane.setViewportView(panel);
+	}
+	
+	public VisualGraph(Graph graph)
+	{	
+		this();
+		initGraph(graph);
+	}
+	@Override
+	public void graphChanged(Graph graph) {
+		panel.removeAll();
+		initGraph(graph);
+	}
+	public void initGraph(Graph graph) {
+		this.graph=graph;
+		LinkedList<Node> nodeList =new LinkedList<Node>( graph.getNodes());
+		LinkedList<Connection> connections=new LinkedList<Connection>(graph.getSortedConnections()); 
+		
+		if(nodeList.isEmpty())
+			return;
+		Node currentNode=nodeList.removeFirst();
+		LinkedList<VisualNode>visualSortedNodesList=new LinkedList<VisualNode>();
+		
+		while(!nodeList.isEmpty())
+		{
+			VisualNode visualNode=new VisualNode(this,currentNode);
+			visualSortedNodesList.addLast(visualNode);
+			panel.add(visualNode);
+			nodes.put(currentNode,visualNode);
+			nodeList.remove(currentNode);
+			if(!connections.isEmpty())
+			{
+				LinkedList<Connection>deleteList=new LinkedList<Connection>();
+				for(Connection connection:connections)
+				{
+					if(connection.containsNode(currentNode))
+					{
+						deleteList.add(connection);
+						
+					}
+				}
+				if(!deleteList.isEmpty())
+				{
+					connections.removeAll(deleteList);
+					Connection connection= deleteList.getFirst();
+					currentNode=(Node) connection.getTheOtherNode(currentNode);
+					continue;
+				}
+			}
+			if(!nodeList.isEmpty())
+				currentNode=nodeList.getFirst();
+		}//end while
+		
+		calculatePositions(visualSortedNodesList);
+		doLayout();
+	}
+	public void addGraphComponentChangedListener(IGraphComponentChangedListener listener)
+	{
+		graphComponentListener.add(listener);
+	}
+	public void removeGraphComponentChangedListener(IGraphComponentChangedListener listener)
+	{
+		graphComponentListener.remove(listener);
 	}
 	private void drawPathsAndConnection(Graphics2D g2d)
 	{
@@ -107,62 +193,8 @@ public class VisualGraph extends JPanel {
 		}
 	}
 	
-	
-	public VisualGraph(Graph graph)
-	{	
-		this();
-		initGraph(graph);
-	}
 
-	public void initGraph(Graph graph) {
-		this.graph=graph;
-		LinkedList<Node> nodeList =new LinkedList<Node>( graph.getNodes());
-		LinkedList<Connection> connections=new LinkedList<Connection>(graph.getSortedConnections()); 
-		
-		if(nodeList.isEmpty())
-			return;
-		Node currentNode=nodeList.removeFirst();
-		LinkedList<VisualNode>visualSortedNodesList=new LinkedList<VisualNode>();
-		
-		while(!nodeList.isEmpty())
-		{
-			VisualNode visualNode=new VisualNode(this,currentNode);
-			visualSortedNodesList.addLast(visualNode);
-			panel.add(visualNode);
-			nodes.put(currentNode,visualNode);
-			nodeList.remove(currentNode);
-			if(!connections.isEmpty())
-			{
-				LinkedList<Connection>deleteList=new LinkedList<Connection>();
-				for(Connection connection:connections)
-				{
-					if(connection.containsNode(currentNode))
-					{
-						deleteList.add(connection);
-						
-					}
-				}
-				if(!deleteList.isEmpty())
-				{
-					connections.removeAll(deleteList);
-					Connection connection= deleteList.getFirst();
-					currentNode=(Node) connection.getTheOtherNode(currentNode);
-					continue;
-				}
-			}
-			if(!nodeList.isEmpty())
-				currentNode=nodeList.getFirst();
-		}//end while
-		
-		calculatePositions(visualSortedNodesList);
-		doLayout();
-//		addComponentListener(new ComponentAdapter(){
-//			@Override
-//			public void componentResized(ComponentEvent e) {
-//				
-//			}
-//		});
-	}
+
 
 	private void calculatePositions(LinkedList<VisualNode> visualSortedNodesList) {
 		System.out.println("Calculate Position");
@@ -204,9 +236,21 @@ public class VisualGraph extends JPanel {
 	private double calculateAngle(int counter, int size) {
 		return Math.PI * 2.0 *counter/ size;
 	}
-
-
-	
-
-	
+	private static void addPopup(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
+	}
 }

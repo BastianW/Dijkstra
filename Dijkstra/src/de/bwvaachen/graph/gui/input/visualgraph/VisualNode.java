@@ -1,5 +1,6 @@
 package de.bwvaachen.graph.gui.input.visualgraph;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -23,6 +24,7 @@ public class VisualNode extends JLabel implements INode {
 		this.visualGraph = graph;
 		setSize(50, 20);// TODO
 		this.node = node;
+		//setOpaque(true);
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
@@ -103,11 +105,24 @@ public class VisualNode extends JLabel implements INode {
 	}
 
 	@Override
-	protected void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g) {
+		Color c=g.getColor();
+		g.setColor(Color.green);
 		if(recView)
-		g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+		g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
 		else
-		g.drawOval(0, 0, getWidth() - 1, getHeight() - 1);
+		g.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+		g.setColor(c);
 		super.paintComponent(g);
 	}
+	public void testpaintComponent(Graphics g) {
+		Color c=g.getColor();
+		g.setColor(Color.green);
+			if(recView)
+			g.fillRect(getLocation().x, getLocation().y, getWidth() - 1, getHeight() - 1);
+			else
+			g.fillOval(getLocation().x, getLocation().y, getWidth() - 1, getHeight() - 1);
+			g.setColor(c);
+	}
+	
 }

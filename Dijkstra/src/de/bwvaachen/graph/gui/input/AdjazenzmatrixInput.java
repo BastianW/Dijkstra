@@ -1,8 +1,10 @@
 package de.bwvaachen.graph.gui.input;
 
 import java.awt.BorderLayout;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -43,27 +45,22 @@ public class AdjazenzmatrixInput extends JPanel implements IGraphComponentChange
 		graphViewAndMatrixPane.setResizeWeight(0.4);
 		graphViewAndMatrixPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setLeftComponent(graphViewAndMatrixPane);
-		AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(7, WeightMode.DOUBLE_MODE);
+		
+		AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(graph, WeightMode.DOUBLE_MODE);
 		graphViewAndMatrixPane.setLeftComponent(adjazenzmatrixView);
+		
+		VisualGraph visualGraph=new VisualGraph(graph);
+		graphViewAndMatrixPane.setRightComponent(visualGraph);
 
-		List <Node>nodes=new LinkedList<Node>();
-		Node bastian=new Node("Bastian");
-		nodes.add(bastian);
-		Node michi=new Node("Michi");
-		nodes.add(michi);
-		Node dennis= new Node("Dennis");
-		nodes.add(dennis);
-		Node franz=new Node("Franz");
-		nodes.add(franz);
-		
-		Connection bastian_michi=new Connection(bastian, michi, new Edge(12));
-		Connection michi_dennis=new Connection(michi,dennis,new Edge(3));
-		
-		List<Connection>connections=new LinkedList<Connection>();
-		connections.add(bastian_michi);
-		connections.add(michi_dennis);
-		NodesView nodesView = new NodesView(nodes,connections, new LinkedList<Path>());
+		NodesView nodesView = new NodesView(graph);
 		nodesAndAlgorithmusPane.setLeftComponent(nodesView);
+		
+		graphChangeListener.add(nodesView);
+		graphChangeListener.add(adjazenzmatrixView);
+		graphChangeListener.add(visualGraph);
+		nodesView.addGraphComponentChangedListener(this);
+		adjazenzmatrixView.addGraphComponentChangedListener(this);
+		visualGraph.addGraphComponentChangedListener(this);
 	}
 
 	private void notifyGraphChangeListener()
