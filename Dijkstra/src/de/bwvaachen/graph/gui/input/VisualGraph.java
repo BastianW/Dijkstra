@@ -52,15 +52,16 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 		{
 			@Override
 			public void paintComponent(Graphics g) {
-				g.setColor(Color.WHITE);
-				g.fillRect(0, 0, getWidth(), getHeight());
-				g.setColor(Color.BLACK);
+//				g.setColor(Color.WHITE);
+//				g.fillRect(0, 0, getWidth(), getHeight());
+//				g.setColor(Color.BLACK);
+				super.paintComponent(g);
 				drawPathsAndConnection((Graphics2D) g);
 				
-				for(VisualNode node:nodes.values())
-				node.testpaintComponent(g);
+				//for(VisualNode node:nodes.values())
+				//node.testpaintComponent(g);
 //				
-//				//super.paintComponent(g);
+				
 			}
 		};
 		
