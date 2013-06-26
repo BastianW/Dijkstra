@@ -84,7 +84,6 @@ public Graph() {
 				testConnectionContained=false;
 			}
 		}
-		
 		if(path==null || false)
 			throw new IllegalArgumentException();
 		
