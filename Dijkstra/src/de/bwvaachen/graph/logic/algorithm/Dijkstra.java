@@ -113,7 +113,8 @@ public class Dijkstra {
 		if (distance < neighbour.getWeight().doubleValue()) {
 			if (distance == (int) distance)
 				neighbour.setWeight(new Integer((int) distance));
-			neighbour.setWeight(new Double(distance));
+			else
+				neighbour.setWeight(new Double(distance));
 			Collections.sort(nodes);
 		}
 		previousNodes.put(neighbour, node);
@@ -134,6 +135,8 @@ public class Dijkstra {
 			}
 			node = previousNode;
 		}
+		if(pathConnections.isEmpty())
+			return null;
 		return new Path(pathConnections);
 	}
 
@@ -143,12 +146,16 @@ public class Dijkstra {
 			if (nodes.contains(node))
 				continue;
 			Path path = getShortestPath(node);
-			if (!path.isEmpty())
+			if (path==null||!path.isEmpty())
 				continue;
 			results.add(path);
-
 		}
 		return results;
+	}
+
+	public Graph getCurrentGraph() {
+		Graph newGraph=new Graph(graph.getNodes(),graph.getSortedConnections(),getShortestPaths());
+		return newGraph;
 	}
 
 }

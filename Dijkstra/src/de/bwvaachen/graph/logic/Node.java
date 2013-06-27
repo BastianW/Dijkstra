@@ -41,8 +41,6 @@ public class Node implements INode {
 	public boolean equals(Object obj) {
 		if(obj==null)
 			return false;
-		if(!(obj instanceof INode))
-			return false;
 		return this.toString().equals(obj.toString());
 	}
 }

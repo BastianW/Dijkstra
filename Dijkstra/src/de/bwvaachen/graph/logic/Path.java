@@ -24,15 +24,32 @@ public class Path implements Comparable<Path> {
 	public Path(Connection... connections) {
 		if (connections == null || connections.length == 0)
 			throw new IllegalArgumentException();
+		LinkedList<Connection>tmp=new LinkedList<Connection>();
 		for (Connection c : connections) {
-			addConnection(c);
+			tmp.add(c);
 		}
+		initPath(tmp);
 	}
 
 	public Path(Collection<Connection> connections) {
-		if (connections == null || connections.size() == 0)
+		initPath(connections);
+	}
+	public  void initPath(Collection<Connection> connections) {
+		if (connections == null || connections.isEmpty())
 			throw new IllegalArgumentException();
-		for (Connection c : connections) {
+		if(connections.size()>1)
+		{
+			Iterator<Connection> iterator = connections.iterator();
+			Connection con1=iterator.next();
+		Node node1=con1.getStartNode();
+		 Connection con2=iterator.next();
+		if(con2.containsNode(node1))
+		{
+			con1.switchNodes();
+		}
+		}
+		for(Connection c:connections)
+		{
 			addConnection(c);
 		}
 	}
@@ -241,14 +258,14 @@ public class Path implements Comparable<Path> {
 
 	public void sort(Node start) {
 		LinkedList<Connection> newOrderedConnections = new LinkedList<Connection>();
-		if (connections.getLast().containsNode(start))
+		if(connections.getFirst().containsNode(start))
 		{
-			Node lastNode = start;
+			INode lastNode = start;
 
-			Iterator<Connection> descendingIterator = connections
-					.descendingIterator();
-			while (descendingIterator.hasNext()) {
-				Connection currentConnection = descendingIterator.next();
+			Iterator<Connection> iterator = connections
+					.iterator();
+			while (iterator.hasNext()) {
+				Connection currentConnection = iterator.next();
 				if (currentConnection.endsWith(lastNode)) {
 					currentConnection.switchNodes();
 				} else if (!currentConnection.startsWith(lastNode)) {
@@ -258,14 +275,14 @@ public class Path implements Comparable<Path> {
 				newOrderedConnections.addLast(currentConnection);
 			}
 		}
-		else if(connections.getFirst().containsNode(start))
+		else if (connections.getLast().containsNode(start))
 		{
-			INode lastNode = start;
+			Node lastNode = start;
 
-			Iterator<Connection> iterator = connections
-					.iterator();
-			while (iterator.hasNext()) {
-				Connection currentConnection = iterator.next();
+			Iterator<Connection> descendingIterator = connections
+					.descendingIterator();
+			while (descendingIterator.hasNext()) {
+				Connection currentConnection = descendingIterator.next();
 				if (currentConnection.endsWith(lastNode)) {
 					currentConnection.switchNodes();
 				} else if (!currentConnection.startsWith(lastNode)) {
