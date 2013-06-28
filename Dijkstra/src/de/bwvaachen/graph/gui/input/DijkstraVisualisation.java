@@ -13,6 +13,8 @@ import javax.swing.ImageIcon;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.algorithm.Dijkstra;
+import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 
 public class DijkstraVisualisation extends JPanel {
 
@@ -20,6 +22,7 @@ public class DijkstraVisualisation extends JPanel {
 	private static final String PREVIOUS_PNG = "E:\\Programme\\GitStack\\repositories\\git\\Dijkstra\\Dijkstra\\icons\\previous.png";
 	private VisualGraph visualGraph;
 	Dijkstra dijkstra;
+	private JProgressBar progressBar;
 	/**
 	 * Create the panel.
 	 */
@@ -46,9 +49,10 @@ public class DijkstraVisualisation extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dijkstra.stepForward();
+				dijkstra.stepBackward();
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
+				progressBar.setValue(dijkstra.getCurrentSteps());
 			}
 		});
 		control_Panel.add(btn_Previous);
@@ -61,6 +65,7 @@ public class DijkstraVisualisation extends JPanel {
 				dijkstra.stepForward();
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
+				progressBar.setValue(dijkstra.getCurrentSteps());
 			}
 		});
 		control_Panel.add(btn_Next);
@@ -72,9 +77,15 @@ public class DijkstraVisualisation extends JPanel {
 				dijkstra.doDijkstra();
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
+				progressBar.setValue(dijkstra.getCurrentSteps());
 			}
 		});
 		control_Panel.add(btnRunThrough);
+		
+		progressBar = new JProgressBar();
+		progressBar.setStringPainted(true);
+		progressBar.setMaximum(dijkstra.getMaxSteps());
+		panel.add(progressBar, BorderLayout.NORTH);
 	}
 
 }

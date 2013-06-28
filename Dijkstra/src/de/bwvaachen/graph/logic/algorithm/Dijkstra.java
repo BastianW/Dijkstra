@@ -3,6 +3,7 @@ package de.bwvaachen.graph.logic.algorithm;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,16 @@ public class Dijkstra {
 
 	private Node start;
 
+	private Iterator<Connection> connectIt;
+
+	private List<Connection> deleteList;
+
+	private WeightedNode lightestNode;
+
+	private Node neighbour;
+
+	private Integer maxSteps;
+
 	public Dijkstra(Graph graph, Node startNode) {
 		if (graph == null || startNode == null)
 			throw new IllegalArgumentException();
@@ -41,6 +52,8 @@ public class Dijkstra {
 		currentStepCounter=0;
 		connectionList = new LinkedList<Connection>(
 				graph.getSortedConnections());
+		deleteList = new LinkedList<Connection>();
+		connectIt = connectionList.iterator();
 		previousNodes = new HashMap<Node, Node>();
 		nodes = new LinkedList<WeightedNode>();
 		Set<Node> nodeSet = graph.getNodes();
@@ -53,6 +66,8 @@ public class Dijkstra {
 			previousNodes.put(node, null);
 		}
 		Collections.sort(nodes);
+		lightestNode = nodes.removeFirst();
+		neighbour = null;
 	}
 
 	private WeightedNode getWeightedNode(Node node) {
@@ -74,12 +89,17 @@ public class Dijkstra {
 	{
 		if(!nodes.isEmpty())
 		{
-		WeightedNode lightestNode = nodes.removeFirst();//nodes.getFirst();
-		
-		Node neighbour = null;
-
-		List<Connection> deleteList = new LinkedList<Connection>();
-		for (Connection connection : connectionList) {
+		if(!connectIt.hasNext())
+		{
+			lightestNode = nodes.removeFirst();
+			neighbour = null;
+			connectionList.removeAll(deleteList);
+			connectIt = connectionList.iterator();
+			deleteList=new LinkedList<Connection>();
+			Collections.sort(nodes);
+		}
+		while ( connectIt.hasNext()) {
+			Connection connection=connectIt.next();
 			if (connection.containsNode(lightestNode)) {
 				deleteList.add(connection);
 				neighbour = connection.getEndNode();
@@ -87,29 +107,31 @@ public class Dijkstra {
 					neighbour = connection.getStartNode();
 				WeightedNode weightedNode = null;
 				if ((weightedNode = getWeightedNode(neighbour)) != null) {
-					distance_Update(lightestNode, weightedNode, connection.weight());
+					if(distance_Update(lightestNode, weightedNode, connection.weight()))
+						break;
 				}
 				else
 					System.out.println("Fehler");
-
 			}
 		}
-		connectionList.removeAll(deleteList);
-		currentStepCounter++;
-		Collections.sort(nodes);
+
 		}
+	}
+	public void processConnection()
+	{
+		
 	}
 	public void stepBackward()
 	{
 		int steps=currentStepCounter-1;
 		init();
-		for(int i=0;i<steps;i++)
+		while(currentStepCounter<steps)
 		{
 			stepForward();
 		}
 	}
 
-	private void distance_Update(WeightedNode node, WeightedNode neighbour,
+	private boolean distance_Update(WeightedNode node, WeightedNode neighbour,
 			double weightBetween) {
 		double distance =weightBetween + node.getWeight().doubleValue();
 		double oldDistance=neighbour.getWeight().doubleValue();
@@ -119,7 +141,10 @@ public class Dijkstra {
 			else
 				neighbour.setWeight(new Double(distance));
 			previousNodes.put(neighbour, node);
+			currentStepCounter++;
+			return true;
 		}
+		return false;
 		
 	}
 
@@ -146,10 +171,10 @@ public class Dijkstra {
 	public List<Path> getShortestPaths() {
 		List<Path> results = new LinkedList<Path>();
 		for (Node node : graph.getNodes()) {
-			if (nodes.contains(node))
-				continue;
+//			if (nodes.contains(node))
+//				continue;
 			Path path = getShortestPath(node);
-			if (path==null||!path.isEmpty())
+			if (path==null||path.isEmpty())
 				continue;
 			//path.sort(start);
 			results.add(path);
@@ -160,6 +185,20 @@ public class Dijkstra {
 	public Graph getCurrentGraph() {
 		Graph newGraph=new Graph(graph.getNodes(),graph.getSortedConnections(),getShortestPaths());
 		return newGraph;
+	}
+	public int getMaxSteps()
+	{
+		if(maxSteps==null)
+			{
+			Dijkstra dijkstra=new Dijkstra(graph, start);
+			dijkstra.doDijkstra();
+			maxSteps=dijkstra.currentStepCounter;
+			}
+		return maxSteps; 
+	}
+	public int getCurrentSteps()
+	{
+		return currentStepCounter;
 	}
 
 }
