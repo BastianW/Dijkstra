@@ -15,7 +15,7 @@ import de.bwvaachen.graph.gui.input.WeightMode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
-import de.bwvaachen.graph.logic.algorithm.Dijkstra;
+import de.bwvaachen.graph.logic.algorithm.dijkstra.Dijkstra;
 
 
 public class DijkstraTester extends GUIElementTester{

@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.swing.JFrame;
 
-import de.bwvaachen.graph.gui.input.AdjazenzmatrixInput;
+import de.bwvaachen.graph.gui.input.GraphInputView;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
@@ -35,7 +35,7 @@ public class InputViewTester extends GUIElementTester {
 		connections.add(bastian_michi);
 		connections.add(michi_dennis);
 		Graph graph =new Graph(nodes, connections, new LinkedList<Path>());
-		frame.add(new AdjazenzmatrixInput(graph));
+		frame.add(new GraphInputView(graph));
 
 	}
 }

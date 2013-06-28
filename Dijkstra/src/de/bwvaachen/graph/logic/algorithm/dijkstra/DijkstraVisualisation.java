@@ -1,4 +1,4 @@
-package de.bwvaachen.graph.gui.input;
+package de.bwvaachen.graph.logic.algorithm.dijkstra;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -7,15 +7,17 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 
+import de.bwvaachen.graph.gui.input.VisualGraph;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
-import de.bwvaachen.graph.logic.algorithm.Dijkstra;
+
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
@@ -29,7 +31,22 @@ public class DijkstraVisualisation extends JPanel {
 	/**
 	 * Create the panel.
 	 */
+	public DijkstraVisualisation(Graph graph) {
+		Set<Node> nodes = graph.getNodes();
+		Node startNode=null;
+		if(!nodes.isEmpty())
+		{
+			StartNodeChooser startNodeChooser=new StartNodeChooser(nodes);
+			startNodeChooser.setVisible(true);
+			startNode=startNodeChooser.getNode();
+		}
+		init(graph,startNode);
+	}
 	public DijkstraVisualisation(Graph graph, Node startNode) {
+		init(graph, startNode);
+	}
+	
+	private void init(Graph graph, Node startNode) {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -39,7 +56,7 @@ public class DijkstraVisualisation extends JPanel {
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		visualGraph=new VisualGraph(graph);
+		visualGraph=new VisualGraph(graph,false);
 		visualGraph.setNodeDisplayProvider(new NodeDisplayProvider() {
 			
 			@Override
@@ -111,5 +128,6 @@ public class DijkstraVisualisation extends JPanel {
 		progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 		panel.add(progressBar, BorderLayout.NORTH);
 	}
+
 
 }

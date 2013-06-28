@@ -156,13 +156,14 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 		Graph graph=null;
 		try {
 			graph = getGraph();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		for(IGraphComponentChangedListener listener:graphComponentListener)
+			for(IGraphComponentChangedListener listener:graphComponentListener)
 		{
 			listener.graphChanged(graph);
 		}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	public void addGraphComponentChangedListener(IGraphComponentChangedListener listener)

@@ -7,9 +7,9 @@ import javax.swing.JFrame;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.bwvaachen.graph.gui.input.DijkstraVisualisation;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
+import de.bwvaachen.graph.logic.algorithm.dijkstra.DijkstraVisualisation;
 
 
 public class GraphView extends GUIElementTester {

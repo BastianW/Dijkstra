@@ -1,31 +1,33 @@
 package de.bwvaachen.graph.gui.input;
 
 import java.awt.BorderLayout;
-import java.util.HashSet;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import de.bwvaachen.graph.gui.MainWindow;
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
 import de.bwvaachen.graph.logic.Connection;
-import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
+import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualatorProvider;
 
-public class AdjazenzmatrixInput extends JPanel implements IGraphComponentChangedListener{
+public class GraphInputView extends JPanel implements IGraphComponentChangedListener{
 
 	Graph graph;
 	LinkedList<IGraphChangedListener>graphChangeListener=new LinkedList<IGraphChangedListener>();
+	private MainWindow mainWindow;
+	private AlgorithmChooser chooser;
 	/**
 	 * Create the panel.
 	 */
-	public AdjazenzmatrixInput(Graph graph) {
+	public GraphInputView(Graph graph) {
 		this.graph=graph;
 		setLayout(new BorderLayout(0, 0));
 		
@@ -34,7 +36,7 @@ public class AdjazenzmatrixInput extends JPanel implements IGraphComponentChange
 		add(splitPane, BorderLayout.CENTER);
 		
 		JSplitPane nodesAndAlgorithmusPane = new JSplitPane();
-		nodesAndAlgorithmusPane.setResizeWeight(0.7);
+		nodesAndAlgorithmusPane.setResizeWeight(0.9);
 		nodesAndAlgorithmusPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setRightComponent(nodesAndAlgorithmusPane);
 		
@@ -49,12 +51,13 @@ public class AdjazenzmatrixInput extends JPanel implements IGraphComponentChange
 		AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(graph, WeightMode.DOUBLE_MODE);
 		graphViewAndMatrixPane.setLeftComponent(adjazenzmatrixView);
 		
-		VisualGraph visualGraph=new VisualGraph(graph);
+		VisualGraph visualGraph=new VisualGraph(graph,true);
 		graphViewAndMatrixPane.setRightComponent(visualGraph);
 
 		NodesView nodesView = new NodesView(graph);
 		nodesAndAlgorithmusPane.setLeftComponent(nodesView);
-		
+		chooser = new AlgorithmChooser();
+		nodesAndAlgorithmusPane.setRightComponent(chooser);
 		graphChangeListener.add(nodesView);
 		graphChangeListener.add(adjazenzmatrixView);
 		graphChangeListener.add(visualGraph);
@@ -62,7 +65,21 @@ public class AdjazenzmatrixInput extends JPanel implements IGraphComponentChange
 		adjazenzmatrixView.addGraphComponentChangedListener(this);
 		visualGraph.addGraphComponentChangedListener(this);
 	}
-
+	public GraphInputView(Graph graph, MainWindow main)
+	{ 
+		this(graph);
+		this.mainWindow=main;
+		chooser.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AlgorithmVisualatorProvider alg=chooser.getChoose();
+				mainWindow.newTab(alg.createVisualation(GraphInputView.this.graph), alg.getName());
+				
+			}
+		});
+		
+	}
 	private void notifyGraphChangeListener()
 	{
 		for(IGraphChangedListener listener:graphChangeListener)

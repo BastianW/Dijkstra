@@ -1,4 +1,4 @@
-package de.bwvaachen.graph.logic.algorithm;
+package de.bwvaachen.graph.logic.algorithm.dijkstra;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,6 +16,7 @@ import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
+import de.bwvaachen.graph.logic.algorithm.WeightedNode;
 
 public class Dijkstra {
 
