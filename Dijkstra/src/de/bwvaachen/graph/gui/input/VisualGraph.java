@@ -2,35 +2,38 @@ package de.bwvaachen.graph.gui.input;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
 import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
+import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
-import javax.swing.JPopupMenu;
-import java.awt.Component;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JMenuItem;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class VisualGraph extends JPanel implements IGraphChangedListener{
 
@@ -38,6 +41,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 	private Graph graph;
 	private JPanel panel;
 	private HashSet<IGraphComponentChangedListener>graphComponentListener=new HashSet<IGraphComponentChangedListener>();
+	private NodeDisplayProvider nodeDisplayProvider;
 
 	/**
 	 * Create the panel.
@@ -96,10 +100,71 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 	@Override
 	public void graphChanged(Graph graph) {
 		panel.removeAll();
-		initGraph(graph);
+		HashMap<Node, VisualNode> equalElements = equalElements(graph);
+		if(equalElements.size()==0)
+		{
+			initGraph(graph);
+		}
+		else
+		{
+			nodes=new HashMap<Node, VisualNode>();
+			Point position=new Point(0,0);
+			for(Node node:graph.getNodes())
+			{
+				Number weight = calculateWeight(graph, node);
+				VisualNode visualNode=null;
+				if((visualNode=equalElements.get(node))!=null)
+				{
+					visualNode.setWeight(weight);
+					
+				}
+				else
+				{
+					visualNode=new VisualNode(this, node, weight);
+					visualNode.setLocation(position);
+					position.x+=visualNode.getWidth();
+					if(position.x+30>this.getWidth());
+					{
+						position.x=0;
+						position.y+=30;
+					}
+					
+				}
+				panel.add(visualNode);
+				nodes.put(node, visualNode);
+			}
+			this.graph=graph;
+		}
+		repaint(0, 0, getSize().width, getSize().height);
+	}
+	private HashMap<Node,VisualNode> equalElements(Graph newGraph)
+	{
+		HashMap<Node, VisualNode>result=new HashMap<Node, VisualNode>();
+		for(Node node:newGraph.getNodes())
+		{
+
+			if(nodes.containsKey(node));
+			{
+				result.put(node, nodes.get(node));
+			}
+		}
+		return result;
+	}
+	public void setNodeDisplayProvider(NodeDisplayProvider provider)
+	{
+		if(this.nodeDisplayProvider!=provider)
+		{
+			this.nodeDisplayProvider=provider;
+			
+			for(VisualNode node:nodes.values())
+			{
+				node.setNodeDisplayProvider(provider);
+			}
+		}
 	}
 	public void initGraph(Graph graph) {
 		this.graph=graph;
+		nodes=new HashMap<Node, VisualNode>();
 		LinkedList<Node> nodeList =new LinkedList<Node>( graph.getNodes());
 		LinkedList<Connection> connections=new LinkedList<Connection>(graph.getSortedConnections()); 
 		
@@ -110,7 +175,8 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 		
 		while(!nodeList.isEmpty())
 		{
-			VisualNode visualNode=new VisualNode(this,currentNode);
+			Number weight = calculateWeight(graph, currentNode);
+			VisualNode visualNode=new VisualNode(this,currentNode, weight);
 			visualSortedNodesList.addLast(visualNode);
 			panel.add(visualNode);
 			nodes.put(currentNode,visualNode);
@@ -137,8 +203,24 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 				currentNode=nodeList.getFirst();
 		}//end while
 		
-		calculatePositions(visualSortedNodesList);
-		doLayout();
+		calculatePositionsAnWeights(visualSortedNodesList);
+		for(VisualNode node:nodes.values())
+		{
+			node.setNodeDisplayProvider(this.nodeDisplayProvider);
+		}
+		repaint(0, 0, getSize().width, getSize().height);
+	}
+
+	private Number calculateWeight(Graph graph, Node currentNode) {
+		Number weight=null;
+		for(Path path:graph.getPaths())
+		{
+			if(path.endsWith(currentNode))
+			{
+				weight=path.getWeight();
+			}
+		}
+		return weight;
 	}
 	public void addGraphComponentChangedListener(IGraphComponentChangedListener listener)
 	{
@@ -203,7 +285,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 
 
 
-	private void calculatePositions(LinkedList<VisualNode> visualSortedNodesList) {
+	private void calculatePositionsAnWeights(LinkedList<VisualNode> visualSortedNodesList) {
 		System.out.println("Calculate Position");
 		Rectangle rec2=getBounds();
 		int width=panel.getWidth();
@@ -214,6 +296,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener{
 		int radius=100;//TODO relativer Radius
 		for(VisualNode visualNode:visualSortedNodesList)
 		{
+
 			double angle=calculateAngle(counter,size);
 			Point point=calculateAnchor(radius,angle);
 			Rectangle rec=visualNode.getBounds();

@@ -17,12 +17,16 @@ public class VisualNode extends JLabel implements INode {
 	public boolean recView = false;
 	public VisualGraph visualGraph = null;
 	private Node node;
+	private NodeDisplayProvider nodeDisplayProvider=new DefaultNodeDisplayProvider();;
+	private Number weight;
 
-	public VisualNode(VisualGraph graph, Node node) {
+
+	public VisualNode(VisualGraph graph, Node node, Number weight) {
 		super(node.getName());
+		this.weight=weight;
 		setHorizontalAlignment(CENTER);
 		this.visualGraph = graph;
-		setSize(50, 20);// TODO
+		setSize(80, 20);// TODO
 		this.node = node;
 		//setOpaque(true);
 		addMouseMotionListener(new MouseMotionAdapter() {
@@ -92,6 +96,13 @@ public class VisualNode extends JLabel implements INode {
 		return node.getName();
 	}
 
+	public Number getWeight() {
+		return weight;
+	}
+
+	public void setWeight(Number weight) {
+		this.weight = weight;
+	}
 	public String toString() {
 		return node.toString();
 	}
@@ -106,6 +117,7 @@ public class VisualNode extends JLabel implements INode {
 
 	@Override
 	public void paintComponent(Graphics g) {
+		setText(getLabel());
 		Color c=g.getColor();
 		g.setColor(Color.green);
 		if(recView)
@@ -113,16 +125,46 @@ public class VisualNode extends JLabel implements INode {
 		else
 		g.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
 		g.setColor(c);
+		drawDeco(g);
 		super.paintComponent(g);
 	}
-	public void testpaintComponent(Graphics g) {
-		Color c=g.getColor();
-		g.setColor(Color.green);
-			if(recView)
-			g.fillRect(getLocation().x, getLocation().y, getWidth() - 1, getHeight() - 1);
-			else
-			g.fillOval(getLocation().x, getLocation().y, getWidth() - 1, getHeight() - 1);
-			g.setColor(c);
+
+
+	private String getLabel()
+	{
+		return this.nodeDisplayProvider.label(getName(), this.weight);
+	}
+	private void drawDeco(Graphics g)
+	{
+		Point p=this.nodeDisplayProvider.decorationAnchor(this);
+		String deco=this.nodeDisplayProvider.decorate(getName(), weight);
+		if(deco!=null)
+		{
+			g.drawString(deco, p.x, p.y);
+		}
+	}
+	
+	
+	public void setNodeDisplayProvider(NodeDisplayProvider provider) {
+		if(provider!=null)
+		this.nodeDisplayProvider=provider;
+		else
+		{
+			this.nodeDisplayProvider=new DefaultNodeDisplayProvider();
+		}
+		
+	}
+	
+	class DefaultNodeDisplayProvider extends NodeDisplayProvider
+	{
+		@Override
+		public String label(String node, Number weight) {
+			return node;
+		}
+		@Override
+		public String decorate(String node, Number weight) {
+			return null;
+		}
 	}
 	
 }

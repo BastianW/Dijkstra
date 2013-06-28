@@ -4,12 +4,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.ImageIcon;
 
+import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.algorithm.Dijkstra;
@@ -37,6 +40,23 @@ public class DijkstraVisualisation extends JPanel {
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		visualGraph=new VisualGraph(graph);
+		visualGraph.setNodeDisplayProvider(new NodeDisplayProvider() {
+			
+			@Override
+			public String label(String node, Number weight) {
+				return node;
+			}
+			@Override
+			public Point decorationAnchor(VisualNode node) {
+				return new Point (node.getWidth()-30,node.getHeight()/2);
+			}
+			@Override
+			public String decorate(String node, Number weight) {
+				if(weight==null)
+					return Character.toString('\u221E');
+				return weight.toString();
+			}
+		});
 		dijkstra=new Dijkstra(graph, startNode);
 		panel.add(visualGraph,BorderLayout.CENTER);
 		

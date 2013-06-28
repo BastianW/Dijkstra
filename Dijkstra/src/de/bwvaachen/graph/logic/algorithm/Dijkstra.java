@@ -11,6 +11,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import de.bwvaachen.graph.logic.Connection;
+import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
@@ -179,6 +180,7 @@ public class Dijkstra {
 			//path.sort(start);
 			results.add(path);
 		}
+		results.add(new Path(new Connection(start,start, new Edge(0))));
 		return results;
 	}
 

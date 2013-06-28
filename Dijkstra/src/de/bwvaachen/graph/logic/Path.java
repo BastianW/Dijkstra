@@ -300,10 +300,10 @@ public class Path implements Comparable<Path> {
 		connections = newOrderedConnections;
 	}
 	
-	public boolean endsWith(Node node) {
+	public boolean endsWith(Object node) {
 		return node.equals(endNode);
 	}
-	public boolean startsWith(Node node) {
+	public boolean startsWith(Object node) {
 		return node.equals(startNode);
 	}
 
