@@ -18,8 +18,8 @@ import javax.swing.SwingConstants;
 
 public class DijkstraVisualisation extends JPanel {
 
-	private static final String NEXT_PNG = "E:\\Programme\\GitStack\\repositories\\git\\Dijkstra\\Dijkstra\\icons\\next.png";
-	private static final String PREVIOUS_PNG = "E:\\Programme\\GitStack\\repositories\\git\\Dijkstra\\Dijkstra\\icons\\previous.png";
+	private static final String NEXT_PNG = "icons\\next.png";
+	private static final String PREVIOUS_PNG = "icons\\previous.png";
 	private VisualGraph visualGraph;
 	Dijkstra dijkstra;
 	private JProgressBar progressBar;
@@ -53,6 +53,7 @@ public class DijkstraVisualisation extends JPanel {
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
 				progressBar.setValue(dijkstra.getCurrentSteps());
+				progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 			}
 		});
 		control_Panel.add(btn_Previous);
@@ -66,6 +67,7 @@ public class DijkstraVisualisation extends JPanel {
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
 				progressBar.setValue(dijkstra.getCurrentSteps());
+				progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 			}
 		});
 		control_Panel.add(btn_Next);
@@ -78,6 +80,7 @@ public class DijkstraVisualisation extends JPanel {
 				Graph g=dijkstra.getCurrentGraph();
 				visualGraph.graphChanged(g);
 				progressBar.setValue(dijkstra.getCurrentSteps());
+				progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 			}
 		});
 		control_Panel.add(btnRunThrough);
@@ -85,6 +88,7 @@ public class DijkstraVisualisation extends JPanel {
 		progressBar = new JProgressBar();
 		progressBar.setStringPainted(true);
 		progressBar.setMaximum(dijkstra.getMaxSteps());
+		progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 		panel.add(progressBar, BorderLayout.NORTH);
 	}
 
