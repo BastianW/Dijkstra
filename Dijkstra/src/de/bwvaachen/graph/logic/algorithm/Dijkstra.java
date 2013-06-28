@@ -74,8 +74,8 @@ public class Dijkstra {
 	{
 		if(!nodes.isEmpty())
 		{
-		WeightedNode lightestNode = nodes.getFirst();
-		nodes.removeFirst();
+		WeightedNode lightestNode = nodes.removeFirst();//nodes.getFirst();
+		
 		Node neighbour = null;
 
 		List<Connection> deleteList = new LinkedList<Connection>();
@@ -87,13 +87,16 @@ public class Dijkstra {
 					neighbour = connection.getStartNode();
 				WeightedNode weightedNode = null;
 				if ((weightedNode = getWeightedNode(neighbour)) != null) {
-					distance_Update(lightestNode, weightedNode, connection);
+					distance_Update(lightestNode, weightedNode, connection.weight());
 				}
+				else
+					System.out.println("Fehler");
 
 			}
 		}
 		connectionList.removeAll(deleteList);
 		currentStepCounter++;
+		Collections.sort(nodes);
 		}
 	}
 	public void stepBackward()
@@ -107,29 +110,29 @@ public class Dijkstra {
 	}
 
 	private void distance_Update(WeightedNode node, WeightedNode neighbour,
-			Connection connection) {
-		double distance = connection.weight() + node.getWeight().doubleValue();
-
-		if (distance < neighbour.getWeight().doubleValue()) {
+			double weightBetween) {
+		double distance =weightBetween + node.getWeight().doubleValue();
+		double oldDistance=neighbour.getWeight().doubleValue();
+		if (distance < oldDistance) {
 			if (distance == (int) distance)
 				neighbour.setWeight(new Integer((int) distance));
 			else
 				neighbour.setWeight(new Double(distance));
-			Collections.sort(nodes);
+			previousNodes.put(neighbour, node);
 		}
-		previousNodes.put(neighbour, node);
+		
 	}
 
 	public Path getShortestPath(Node end) {
 		List<Connection> connections = graph.getSortedConnections();
 		Node node = end;
 
-		List<Connection> pathConnections = new LinkedList<Connection>();
+		LinkedList<Connection> pathConnections = new LinkedList<Connection>();
 		for (Node previousNode = previousNodes.get(node); previousNode != null; previousNode = previousNodes
 				.get(node)) {
 			for (Connection connection : connections) {
 				if (connection.connectNodes(node, previousNode)) {
-					pathConnections.add(connection);
+					pathConnections.addFirst(connection);
 					break;
 				}
 			}
@@ -148,6 +151,7 @@ public class Dijkstra {
 			Path path = getShortestPath(node);
 			if (path==null||!path.isEmpty())
 				continue;
+			//path.sort(start);
 			results.add(path);
 		}
 		return results;
