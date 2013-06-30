@@ -3,10 +3,13 @@ package de.bwvaachen.graph.gui.input;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.MouseInfo;
 import java.awt.Point;
+import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.ActionEvent;
@@ -17,8 +20,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ import javax.swing.JScrollPane;
 
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
+import de.bwvaachen.graph.gui.input.visualgraph.AddConnection;
 import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
@@ -42,11 +44,13 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	private JPanel panel;
 	private HashSet<IGraphComponentChangedListener> graphComponentListener = new HashSet<IGraphComponentChangedListener>();
 	private NodeDisplayProvider nodeDisplayProvider;
+	private boolean editMode;
 
 	/**
 	 * Create the panel.
 	 */
 	public VisualGraph(boolean editMode) {
+		this.editMode=editMode;
 		setLayout(new GridLayout(0, 1));
 		graph = new Graph();
 		JScrollPane scrollPane = new JScrollPane();
@@ -75,17 +79,17 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			JMenuItem mntmAddNode = new JMenuItem("Add Node");
 			mntmAddNode.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Point position=VisualGraph.this.getMousePosition();
-					Point location=VisualGraph.this.getLocation();
-					Point position1=new Point();
-					position1.x=position.x+location.x;
-					position1.y=position.y+location.y;
-					AddNodeDialog addNodeDialog = new AddNodeDialog(graph,position1);
+                   PointerInfo info = MouseInfo.getPointerInfo();
+				    Point location = info.getLocation();
+				    Point locationOfInsert=VisualGraph.this.getMousePosition();
+					AddNodeDialog addNodeDialog = new AddNodeDialog(graph,location);
 					addNodeDialog.setVisible(true);
 					if(addNodeDialog.newNodeWasCreated())
 					{
 						Node node=addNodeDialog.getNode();
-						addNodeAtPosition(node, position);
+						if(locationOfInsert==null)
+							locationOfInsert=new Point(0,0);
+						addNodeAtPosition(node, locationOfInsert);
 					}
 				}
 
@@ -94,14 +98,19 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			popupMenu.add(mntmAddNode);
 
 			JMenuItem mntmAddConnection = new JMenuItem("Add Connection");
+			mntmAddConnection.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					new AddConnection(VisualGraph.this);
+				}
+			});
 			popupMenu.add(mntmAddConnection);
 
-			JMenuItem mntmAddPath = new JMenuItem("Add Path");
-			popupMenu.add(mntmAddPath);
 		}
 		panel.setLayout(null);
 		// add(panel);
-		panel.setSize(430, 430);
+		panel.setSize(new Dimension(430, 430));
+		panel.setMinimumSize(new Dimension(430, 430));
 		scrollPane.setViewportView(panel);
 
 	}
@@ -141,10 +150,10 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 
 				} else {
 					visualNode = new VisualNode(this, node, weight);
+					createPopupForVisualNode(visualNode);
 					visualNode.setLocation(position);
 					position.x += visualNode.getWidth();
 					if (position.x + 30 > this.getWidth())
-						;
 					{
 						position.x = 0;
 						position.y += 30;
@@ -158,6 +167,35 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		}
 		repaint(0, 0, getSize().width, getSize().height);
 	}
+
+	private void createPopupForVisualNode(final VisualNode visualNode)
+	{
+		if(editMode)
+		{
+			final JPopupMenu popupMenu = new JPopupMenu("Popup");
+			visualNode.addMouseListener(new MouseAdapter() {
+				 public void mousePressed(MouseEvent ev) {
+					 MouseEvent test =ev;
+					 if (ev.getButton()==3) {
+					 Point mousePosition = VisualGraph.this.getMousePosition();
+					 if(mousePosition!=null)
+					 { 
+				        popupMenu.show(VisualGraph.this, mousePosition.x, mousePosition.y);
+				      }
+				      }
+				 }
+			});
+			JMenuItem mntmRemoveNode = new JMenuItem("Remove Node");
+			mntmRemoveNode.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					VisualGraph.this.removeNode(visualNode.getNode());
+				}
+			});
+			popupMenu.add(mntmRemoveNode);
+		}
+	}
+
 
 	private HashMap<Node, VisualNode> equalElements(Graph newGraph) {
 		HashMap<Node, VisualNode> result = new HashMap<Node, VisualNode>();
@@ -197,6 +235,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		while (!nodeList.isEmpty()) {
 			Number weight = calculateWeight(graph, currentNode);
 			VisualNode visualNode = new VisualNode(this, currentNode, weight);
+			createPopupForVisualNode(visualNode);
 			visualSortedNodesList.addLast(visualNode);
 			panel.add(visualNode);
 			nodes.put(currentNode, visualNode);
@@ -356,5 +395,20 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 				popup.show(e.getComponent(), e.getX(), e.getY());
 			}
 		});
+	}
+
+	public Graph getGraph() {
+		return graph;
+	}
+
+	public void addConnection(Connection connection) {
+		graph.addConnection(connection);
+		repaint(0, 0, getSize().width, getSize().height);
+		commitChange();		
+	}
+	protected void removeNode(Node node) {
+		graph.removeNode(node);
+		repaint(0, 0, getSize().width, getSize().height);
+		commitChange();
 	}
 }

@@ -17,6 +17,10 @@ public class VisualNode extends JLabel implements INode {
 	public boolean recView = false;
 	public VisualGraph visualGraph = null;
 	private Node node;
+	public Node getNode() {
+		return node;
+	}
+
 	private NodeDisplayProvider nodeDisplayProvider=new DefaultNodeDisplayProvider();;
 	private Number weight;
 
@@ -30,13 +34,34 @@ public class VisualNode extends JLabel implements INode {
 		this.node = node;
 		//setOpaque(true);
 		addMouseMotionListener(new MouseMotionAdapter() {
+			private long last=System.currentTimeMillis();
+			private Point offset=new Point(0,0);
 			@Override
 			public void mouseDragged(MouseEvent e) {
+				if(System.currentTimeMillis()-last>500)
+				{
+					Point point = visualGraph.getMousePosition();
+					Point location = VisualNode.this.getLocation();
+					if(point==null)
+					{
+						offset=new Point(0,0);
+					}
+					else
+					{
+						offset=new Point(point.x-location.x,point.y-location.y);
+					}
+				}
+				if(e.isAltDown())
+				{
+				
 				Point point = visualGraph.getMousePosition();
 				if (point != null) {
+				point.x-=offset.x;
+				point.y-=offset.y;
 					setBounds(new Rectangle(point, getSize()));
 					visualGraph.repaint();
-				}
+				}}
+				last=System.currentTimeMillis();
 			}
 		});
 	}

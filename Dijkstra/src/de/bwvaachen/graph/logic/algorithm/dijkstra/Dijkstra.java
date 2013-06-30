@@ -1,29 +1,27 @@
 package de.bwvaachen.graph.logic.algorithm.dijkstra;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
-import de.bwvaachen.graph.logic.INode;
 import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
+import de.bwvaachen.graph.logic.algorithm.ConsoleLogger;
+import de.bwvaachen.graph.logic.algorithm.ILogger;
 import de.bwvaachen.graph.logic.algorithm.WeightedNode;
 
 public class Dijkstra {
 
-	List<Connection> connectionList;
+	private List<Connection> connectionList;
 
-	HashMap<Node, Node> previousNodes;
-	LinkedList<WeightedNode> nodes;
+	private HashMap<Node, Node> previousNodes;
+	private LinkedList<WeightedNode> nodes;
 
 	private boolean isFinished = false;
 	private int currentStepCounter = 0;
@@ -41,6 +39,7 @@ public class Dijkstra {
 	private Node neighbour;
 
 	private Integer maxSteps;
+	private ILogger logger=new ConsoleLogger();
 
 	public Dijkstra(Graph graph, Node startNode) {
 		if (graph == null || startNode == null)
@@ -51,6 +50,7 @@ public class Dijkstra {
 	}
 
 	private void init() {
+		logger.resetLogger();
 		currentStepCounter=0;
 		connectionList = new LinkedList<Connection>(
 				graph.getSortedConnections());
@@ -89,16 +89,9 @@ public class Dijkstra {
 	}
 	public void stepForward()
 	{
-		if(!nodes.isEmpty())
+		if(nodes.isEmpty()||connectionList.isEmpty())
 		{
-		if(!connectIt.hasNext())
-		{
-			lightestNode = nodes.removeFirst();
-			neighbour = null;
-			connectionList.removeAll(deleteList);
-			connectIt = connectionList.iterator();
-			deleteList=new LinkedList<Connection>();
-			Collections.sort(nodes);
+			return;
 		}
 		while ( connectIt.hasNext()) {
 			Connection connection=connectIt.next();
@@ -109,19 +102,23 @@ public class Dijkstra {
 					neighbour = connection.getStartNode();
 				WeightedNode weightedNode = null;
 				if ((weightedNode = getWeightedNode(neighbour)) != null) {
-					if(distance_Update(lightestNode, weightedNode, connection.weight()))
-						break;
+					distance_Update(lightestNode, weightedNode, connection.weight());
+						return;
 				}
 				else
 					System.out.println("Fehler");
 			}
 		}
-
+		if(!connectIt.hasNext())
+		{
+			lightestNode = nodes.removeFirst();
+			neighbour = null;
+			connectionList.removeAll(deleteList);
+			connectIt = connectionList.iterator();
+			deleteList=new LinkedList<Connection>();
+			Collections.sort(nodes);
+			stepForward();
 		}
-	}
-	public void processConnection()
-	{
-		
 	}
 	public void stepBackward()
 	{
@@ -135,6 +132,9 @@ public class Dijkstra {
 
 	private boolean distance_Update(WeightedNode node, WeightedNode neighbour,
 			double weightBetween) {
+		
+		logger.writeLine("Step "+ currentStepCounter+" ("+neighbour+") compare: "+node.getWeight().toString()+"+"+weightBetween+"<"+(neighbour.getWeight().doubleValue()==Double.MAX_VALUE?Character.toString('\u221E'):neighbour.getWeight()));
+		currentStepCounter++;
 		double distance =weightBetween + node.getWeight().doubleValue();
 		double oldDistance=neighbour.getWeight().doubleValue();
 		if (distance < oldDistance) {
@@ -143,7 +143,7 @@ public class Dijkstra {
 			else
 				neighbour.setWeight(new Double(distance));
 			previousNodes.put(neighbour, node);
-			currentStepCounter++;
+			logger.writeLine(neighbour+" gets new weight "+neighbour.getWeight());
 			return true;
 		}
 		return false;
@@ -194,6 +194,14 @@ public class Dijkstra {
 		if(maxSteps==null)
 			{
 			Dijkstra dijkstra=new Dijkstra(graph, start);
+			dijkstra.setLogger(new ILogger() {
+				@Override
+				public void writeLine(String line) {
+				}
+				@Override
+				public void resetLogger() {
+				}
+			});
 			dijkstra.doDijkstra();
 			maxSteps=dijkstra.currentStepCounter;
 			}
@@ -203,5 +211,14 @@ public class Dijkstra {
 	{
 		return currentStepCounter;
 	}
+
+	public ILogger getLogger() {
+		return logger;
+	}
+
+	public void setLogger(ILogger logger) {
+		this.logger = logger;
+	}
+
 
 }

@@ -11,7 +11,15 @@ public class DijkstraProvider extends AlgorithmVisualatorProvider {
 	static DijkstraProvider provider=new DijkstraProvider();
 	
 	public JPanel createVisualation(Graph graph) {
-		return new DijkstraVisualisation(graph);
+		DijkstraVisualisation dijkstraVisualisation=null;
+		try{
+			dijkstraVisualisation=new DijkstraVisualisation(graph);
+		}
+		catch(Exception ex)
+		{
+			
+		}
+		return dijkstraVisualisation;
 	}
 
 	@Override

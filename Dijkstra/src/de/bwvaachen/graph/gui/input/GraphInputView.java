@@ -74,7 +74,9 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				AlgorithmVisualatorProvider alg=chooser.getChoose();
-				mainWindow.newTab(alg.createVisualation(GraphInputView.this.graph), alg.getName());
+				JPanel createVisualation = alg.createVisualation(GraphInputView.this.graph);
+				if(createVisualation!=null)
+				mainWindow.newTab(createVisualation, alg.getName());
 				
 			}
 		});

@@ -49,6 +49,10 @@ public Graph() {
 	{
 		if(!(nodes.contains(c.getStartNode())&& nodes.contains(c.getEndNode())) || c==null)
 			throw new IllegalArgumentException();
+		if(connections.contains(c))
+		{
+			throw new IllegalArgumentException();
+		}
 		connections.add(c);
 	}
 	
@@ -63,10 +67,17 @@ public Graph() {
 		if(node!=null)
 		nodes.add(node);
 	}
-	public void removeNode(INode node)
+	public void removeNode(Node node)
 	{
 		if(node!=null)
 		nodes.remove(node);
+		LinkedList<Connection>removeList=new LinkedList<Connection>();
+		for(Connection c : connections)
+		{
+			if(c.containsNode(node))
+				removeList.add(c);
+		}
+		connections.removeAll(removeList);
 	}
 	
 	public Set<Node> getNodes()

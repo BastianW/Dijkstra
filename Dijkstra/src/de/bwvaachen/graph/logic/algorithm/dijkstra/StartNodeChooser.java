@@ -1,29 +1,27 @@
 package de.bwvaachen.graph.logic.algorithm.dijkstra;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
 
-import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListDataListener;
 
-import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
+import de.bwvaachen.graph.gui.MyDialog;
 import de.bwvaachen.graph.logic.Node;
-import java.awt.Dialog.ModalityType;
 
-public class StartNodeChooser extends JDialog {
+public class StartNodeChooser extends MyDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JComboBox comboBox;
+	protected boolean selected;
 
 
 	/**
@@ -51,7 +49,8 @@ public class StartNodeChooser extends JDialog {
 			JButton okButton = new JButton("OK");
 			okButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-								setVisible(false);		
+								setVisible(false);
+								selected=true;
 				}
 			});
 			buttonPane.add(okButton);
@@ -63,12 +62,17 @@ public class StartNodeChooser extends JDialog {
 //					dispose();
 //				}
 //			});
-//			buttonPane.add(cancelButton);		
+//			buttonPane.add(cancelButton);
+			comboBox.requestFocus();
+			doLayout();
+			adjust();
 	}
 
 
 	public Node getNode() {
+		if(selected)
 		return (Node)comboBox.getSelectedItem();
+		return null;
 	}
 
 }

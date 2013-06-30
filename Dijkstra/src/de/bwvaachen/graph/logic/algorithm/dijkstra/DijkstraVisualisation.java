@@ -39,6 +39,8 @@ public class DijkstraVisualisation extends JPanel {
 			StartNodeChooser startNodeChooser=new StartNodeChooser(nodes);
 			startNodeChooser.setVisible(true);
 			startNode=startNodeChooser.getNode();
+			if(startNode==null)
+				throw new IllegalArgumentException();
 		}
 		init(graph,startNode);
 	}
