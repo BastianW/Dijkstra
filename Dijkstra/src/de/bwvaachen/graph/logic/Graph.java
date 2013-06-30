@@ -9,19 +9,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Graph {
 	HashSet<Node>nodes=new HashSet<Node>();
@@ -108,6 +105,7 @@ public Graph() {
 	public void save(String filePath) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		  ObjectMapper mapper = new ObjectMapper();
+		  mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		  mapper.writeValue(new File(filePath), this);
 	}
 	public static Graph load(String filePath) throws JsonParseException, JsonMappingException, IOException
