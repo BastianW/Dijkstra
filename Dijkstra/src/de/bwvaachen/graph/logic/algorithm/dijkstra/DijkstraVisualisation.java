@@ -3,6 +3,8 @@ package de.bwvaachen.graph.logic.algorithm.dijkstra;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
+import javax.swing.JSplitPane;
+
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -76,9 +78,17 @@ public class DijkstraVisualisation extends JPanel {
 				return weight.toString();
 			}
 		});
-		dijkstra=new Dijkstra(graph, startNode);
-		panel.add(visualGraph,BorderLayout.CENTER);
+
 		
+		DijkstraVisualisationLogger logger=new DijkstraVisualisationLogger();
+		dijkstra=new Dijkstra(graph, startNode);
+		dijkstra.setLogger(logger);
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setResizeWeight(0.7);
+		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		splitPane.setLeftComponent(visualGraph);
+		splitPane.setRightComponent(logger);
+		panel.add(splitPane, BorderLayout.CENTER);
 		JPanel control_Panel = new JPanel();
 		panel.add(control_Panel, BorderLayout.SOUTH);
 		
