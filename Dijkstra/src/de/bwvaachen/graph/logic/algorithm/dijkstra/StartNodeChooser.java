@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -39,6 +41,24 @@ public class StartNodeChooser extends MyDialog {
 			contentPanel.add(lblNode);
 
 			comboBox = new JComboBox(nodes.toArray());
+			comboBox.addMouseWheelListener(new MouseWheelListener() {
+				
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) {
+						int i=comboBox.getSelectedIndex();
+						int count=comboBox.getItemCount();
+						int newIndex=0;
+					if(e.getWheelRotation()>0)
+					{
+						newIndex=(i+count+1)%count;
+					}
+					else
+					{
+						newIndex=(i+count-1)%count;
+					}
+					comboBox.setSelectedIndex(newIndex);
+				}
+			});
 			comboBox.setSelectedIndex(0);
 			contentPanel.add(comboBox);
 

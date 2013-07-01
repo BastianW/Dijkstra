@@ -4,6 +4,8 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -30,6 +32,24 @@ public class AlgorithmChooser extends JPanel{
 		add(lblAlg, BorderLayout.WEST);
 		Object[] array = AlgorithmVisualtorProviderCollector.getProvider().toArray();
 		comboBox = new JComboBox(array);
+		comboBox.addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+					int i=comboBox.getSelectedIndex();
+					int count=comboBox.getItemCount();
+					int newIndex=0;
+				if(e.getWheelRotation()>0)
+				{
+					newIndex=(i+count+1)%count;
+				}
+				else
+				{
+					newIndex=(i+count-1)%count;
+				}
+				comboBox.setSelectedIndex(newIndex);
+			}
+		});
 		add(comboBox, BorderLayout.CENTER);
 		
 		btnCreateAlg = new JButton("Create Algorithmview");

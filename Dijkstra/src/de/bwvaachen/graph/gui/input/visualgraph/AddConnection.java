@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Set;
 
 import javax.swing.JButton;
@@ -53,6 +55,24 @@ public class AddConnection extends MyDialog {
 		
 		startNode_comboBox = new JComboBox(nodes.toArray());
 		startNode_comboBox.setSelectedIndex(0);
+		startNode_comboBox.addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+					int i=startNode_comboBox.getSelectedIndex();
+					int count=startNode_comboBox.getItemCount();
+					int newIndex=0;
+				if(e.getWheelRotation()>0)
+				{
+					newIndex=(i+count+1)%count;
+				}
+				else
+				{
+					newIndex=(i+count-1)%count;
+				}
+				startNode_comboBox.setSelectedIndex(newIndex);
+			}
+		});
 		contentPanel.add(startNode_comboBox);
 
 		JLabel lblEndnode = new JLabel("Endnode:");
@@ -61,6 +81,24 @@ public class AddConnection extends MyDialog {
 
 		endNode_comboBox = new JComboBox(nodes.toArray());
 		endNode_comboBox.setSelectedIndex(0);
+		endNode_comboBox.addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+					int i=endNode_comboBox.getSelectedIndex();
+					int count=endNode_comboBox.getItemCount();
+					int newIndex=0;
+				if(e.getWheelRotation()>0)
+				{
+					newIndex=(i+count+1)%count;
+				}
+				else
+				{
+					newIndex=(i+count-1)%count;
+				}
+				endNode_comboBox.setSelectedIndex(newIndex);
+			}
+		});
 		contentPanel.add(endNode_comboBox);
 
 		JLabel lblWeight = new JLabel("Weight:");
@@ -69,6 +107,26 @@ public class AddConnection extends MyDialog {
 		spinner = new JSpinner();
 		spinner.setModel(new SpinnerNumberModel(new Double(1), null, null,
 				new Double(1)));
+		spinner.addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+					double value=(Double) spinner.getValue();
+
+					double newValue=0;
+				if(e.getWheelRotation()>0)
+				{
+					newValue=value-1;
+					if(newValue<0)
+						newValue=0;
+				}
+				else
+				{
+					newValue=value+1;
+				}
+				spinner.setValue(newValue);
+			}
+		});
 		contentPanel.add(spinner);
 
 		JPanel buttonPane = new JPanel();

@@ -116,7 +116,6 @@ public class Dijkstra {
 			connectionList.removeAll(deleteList);
 			connectIt = connectionList.iterator();
 			deleteList=new LinkedList<Connection>();
-			Collections.sort(nodes);
 			stepForward();
 		}
 	}
@@ -143,6 +142,7 @@ public class Dijkstra {
 			else
 				neighbour.setWeight(new Double(distance));
 			previousNodes.put(neighbour, node);
+			Collections.sort(nodes);
 			logger.writeLine(neighbour+" gets new weight "+neighbour.getWeight());
 			return true;
 		}
