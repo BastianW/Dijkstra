@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 
 import de.bwvaachen.graph.gui.input.VisualGraph;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
@@ -46,11 +47,24 @@ public class DijkstraVisualisation extends JPanel {
 		}
 		init(graph,startNode);
 	}
+	public DijkstraVisualisation(VisualGraphContainer graphContainer) {
+		Set<Node> nodes = graphContainer.getGraph().getNodes();
+		Node startNode=null;
+		if(!nodes.isEmpty())
+		{
+			StartNodeChooser startNodeChooser=new StartNodeChooser(nodes);
+			startNodeChooser.setVisible(true);
+			startNode=startNodeChooser.getNode();
+			if(startNode==null)
+				throw new IllegalArgumentException();
+		}
+		init(graphContainer,startNode);
+	}
 	public DijkstraVisualisation(Graph graph, Node startNode) {
 		init(graph, startNode);
 	}
 	
-	private void init(Graph graph, Node startNode) {
+	private void init(Object graphContainer, Node startNode) {
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -60,7 +74,10 @@ public class DijkstraVisualisation extends JPanel {
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 		
-		visualGraph=new VisualGraph(graph,false);
+		if(graphContainer instanceof VisualGraphContainer)
+			visualGraph=new VisualGraph((VisualGraphContainer)graphContainer,false);
+		else
+			visualGraph=new VisualGraph((Graph) graphContainer,false);
 		visualGraph.setNodeDisplayProvider(new NodeDisplayProvider() {
 			
 			@Override
@@ -81,7 +98,10 @@ public class DijkstraVisualisation extends JPanel {
 
 		
 		DijkstraVisualisationLogger logger=new DijkstraVisualisationLogger();
-		dijkstra=new Dijkstra(graph, startNode);
+		if(graphContainer instanceof VisualGraphContainer)
+		dijkstra=new Dijkstra(((VisualGraphContainer) graphContainer).getGraph(), startNode);
+		else
+			dijkstra=new Dijkstra((Graph) graphContainer, startNode);
 		dijkstra.setLogger(logger);
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.7);

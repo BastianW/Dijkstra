@@ -24,6 +24,7 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 	LinkedList<IGraphChangedListener>graphChangeListener=new LinkedList<IGraphChangedListener>();
 	private MainWindow mainWindow;
 	private AlgorithmChooser chooser;
+	private VisualGraph visualGraph;
 	/**
 	 * Create the panel.
 	 */
@@ -51,7 +52,7 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 		AdjazenzmatrixView adjazenzmatrixView = new AdjazenzmatrixView(graph, WeightMode.DOUBLE_MODE);
 		graphViewAndMatrixPane.setLeftComponent(adjazenzmatrixView);
 		
-		VisualGraph visualGraph=new VisualGraph(graph,true);
+		visualGraph = new VisualGraph(graph,true);
 		graphViewAndMatrixPane.setRightComponent(visualGraph);
 
 		NodesView nodesView = new NodesView(graph);
@@ -74,7 +75,7 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				AlgorithmVisualatorProvider alg=chooser.getChoose();
-				JPanel createVisualation = alg.createVisualation(GraphInputView.this.graph);
+				JPanel createVisualation = alg.createVisualation(visualGraph.getVisualGraphContainer());
 				if(createVisualation!=null)
 				mainWindow.newTab(createVisualation, alg.getName());
 				

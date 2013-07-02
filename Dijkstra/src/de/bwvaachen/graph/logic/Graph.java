@@ -33,6 +33,9 @@ public Graph() {
 		this.connections.addAll(connections);
 		this.paths.addAll(paths);
 	}
+	public Graph(Graph graph) {
+		this(graph.getNodes(),graph.getSortedConnections(),graph.getPaths());
+	}
 	public List<Connection> getSortedConnections() {
 		Collections.sort(connections);
 		return Collections.unmodifiableList(connections);

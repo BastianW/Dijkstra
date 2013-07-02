@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -31,6 +32,7 @@ import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
 import de.bwvaachen.graph.gui.input.visualgraph.AddConnection;
 import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
@@ -118,6 +120,21 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	public VisualGraph(Graph graph, boolean editMode) {
 		this(editMode);
 		initGraph(graph);
+	}
+	public VisualGraph(VisualGraphContainer container, boolean editMode) {
+		this(container.getGraph(),editMode);
+		for(Entry<Node,Point>entry:container.getVisualNodeMap().entrySet())
+		{
+			VisualNode visualNode = this.nodes.get(entry.getKey());
+			if(visualNode!=null)
+				visualNode.setLocation(entry.getValue());
+		}
+		repaint(0, 0, getSize().width, getSize().height);
+	}
+	public VisualGraphContainer  getVisualGraphContainer()
+	{
+		Graph graph=new Graph(this.graph);
+		return new VisualGraphContainer(graph, this.nodes);
 	}
 	private void addNodeAtPosition(Node node, Point position) {
 		VisualNode visualNode=new VisualNode(this, node, null);
@@ -222,6 +239,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 
 	public void initGraph(Graph graph) {
 		this.graph = graph;
+		panel.setBackground(Color.WHITE);
 		nodes = new HashMap<Node, VisualNode>();
 		LinkedList<Node> nodeList = new LinkedList<Node>(graph.getNodes());
 		LinkedList<Connection> connections = new LinkedList<Connection>(
