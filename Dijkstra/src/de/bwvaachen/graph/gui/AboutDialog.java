@@ -1,17 +1,11 @@
 package de.bwvaachen.graph.gui;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
-import javax.swing.JTextArea;
-import com.jgoodies.forms.factories.DefaultComponentFactory;
 import javax.swing.SwingConstants;
-import java.awt.Window.Type;
+
 
 public class AboutDialog extends JDialog {
 

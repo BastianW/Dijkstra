@@ -127,6 +127,7 @@ public class VisualNode extends JLabel implements INode {
 
 	public void setWeight(Number weight) {
 		this.weight = weight;
+		repaint();
 	}
 	public String toString() {
 		return node.toString();

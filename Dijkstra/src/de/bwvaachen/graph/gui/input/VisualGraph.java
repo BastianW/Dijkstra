@@ -123,14 +123,18 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	}
 	public VisualGraph(VisualGraphContainer container, boolean editMode) {
 		this(container.getGraph(),editMode);
-		for(Entry<Node,Point>entry:container.getVisualNodeMap().entrySet())
+		repaint(0, 0, getSize().width, getSize().height);
+	}
+	public void setPositionOfNodes(VisualGraphContainer container)
+	{
+		for(Entry<Node,Point>entry:container.getPointMap().entrySet())
 		{
 			VisualNode visualNode = this.nodes.get(entry.getKey());
 			if(visualNode!=null)
 				visualNode.setLocation(entry.getValue());
 		}
-		repaint(0, 0, getSize().width, getSize().height);
 	}
+	
 	public VisualGraphContainer  getVisualGraphContainer()
 	{
 		Graph graph=new Graph(this.graph);
@@ -219,7 +223,6 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		for (Node node : newGraph.getNodes()) {
 
 			if (nodes.containsKey(node))
-				;
 			{
 				result.put(node, nodes.get(node));
 			}

@@ -11,14 +11,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Graph {
 	HashSet<Node>nodes=new HashSet<Node>();
@@ -111,11 +114,29 @@ public Graph() {
 		  mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		  mapper.writeValue(new File(filePath), this);
 	}
+	@JsonIgnore
+	public JsonNode getGraphAsJson()
+	{
+		  ObjectMapper mapper = new ObjectMapper();
+		  try {
+			String graph=mapper.writeValueAsString(this);
+			return mapper.readTree(graph.getBytes());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		  return null;
+	}
 	public static Graph load(String filePath) throws JsonParseException, JsonMappingException, IOException
 	{
 		 ObjectMapper mapper = new ObjectMapper();
-		JsonNode jsonTree = mapper.readTree(new File(filePath));
-		ArrayNode json_Nodes=(ArrayNode) jsonTree.get("nodes");
+		 JsonNode jsonTree = mapper.readTree(new File(filePath));
+		 return load(mapper,jsonTree);
+	}
+	public static Graph load(ObjectMapper mapper,JsonNode jsonTree) throws JsonParseException, JsonMappingException, IOException
+	{
+		ArrayNode json_Nodes=(ArrayNode)jsonTree.get("nodes");
 		Iterator<JsonNode> elements = json_Nodes.elements();
 		HashSet<Node> nodes=new HashSet<Node>();
 		while(elements.hasNext())

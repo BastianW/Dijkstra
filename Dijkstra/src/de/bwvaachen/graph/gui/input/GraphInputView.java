@@ -1,17 +1,25 @@
 package de.bwvaachen.graph.gui.input;
 
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import de.bwvaachen.graph.gui.MainWindow;
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
@@ -90,6 +98,18 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 			listener.graphChanged(graph);
 		}
 	}
+	public void save(String path) throws JsonGenerationException, JsonMappingException, IOException
+	{
+		HashMap<Node, Point> visualNodeMap = visualGraph.getVisualGraphContainer().getPointMap();
+		new VisualGraphContainer(graph, visualNodeMap,false).save(path);
+	}
+	public void load(String path) throws JsonProcessingException, IOException
+	{
+		VisualGraphContainer saveContainer = VisualGraphContainer.load(path);
+		graphChanged(saveContainer.getGraph());
+		visualGraph.setPositionOfNodes(saveContainer);
+	}
+	
 	
 	@Override
 	public void nodeAdded(Node node) {
