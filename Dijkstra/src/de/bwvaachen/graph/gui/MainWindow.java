@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -78,6 +79,18 @@ public class MainWindow extends JFrame {
 		menuBar.add(mnHelp);
 		
 		JMenuItem mntmAboutTolleflugbuchung = new JMenuItem("About TolleFlugBuchung");
+		mntmAboutTolleflugbuchung.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					AboutDialog dialog = new AboutDialog();
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		mnHelp.add(mntmAboutTolleflugbuchung);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -100,7 +113,7 @@ public class MainWindow extends JFrame {
 			e2.printStackTrace();
 		}
 		
-		tabbedPane.addTab("New tab", null, new GraphInputView(graph, this), null);
+		tabbedPane.addTab("Adjazenzmatrix", null, new GraphInputView(graph, this), null);
 		
 	}
 
