@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
 
@@ -57,36 +58,18 @@ public class SaveContainer
 			 ObjectNode graph_Node=(ObjectNode) jsonTree.get("graph");
 			 Graph graph=Graph.load(mapper,graph_Node);
 			ObjectNode pointMap_Node=(ObjectNode) jsonTree.get("pointMap");
-			 return null;//new SaveContainer(graph, pointMap);
-		}
-		class MyPoint
-		{
-			public MyPoint(int x, int y) {
-				this.x = x;
-				this.y = y;
-			}
-			public MyPoint(Point p) {
-				this.x = p.x;
-				this.y = p.y;
-			}
-			private int x;
-			private int y;
-			public int getX() {
-				return x;
-			}
-			public void setX(int x) {
-				this.x = x;
-			}
-			public int getY() {
-				return y;
-			}
-			public void setY(int y) {
-				this.y = y;
-			}
-			@JsonIgnore
-			public Point getPoint()
+			HashMap<Node, Point>pointMap=new HashMap<Node, Point>();
+			for(Node node:graph.getNodes())
 			{
-				return new Point(x,y);
+				ObjectNode objectNode=(ObjectNode)pointMap_Node.get(node.getName());
+				if(objectNode!=null)
+				{
+					MyPoint myPoint= mapper.readValue(objectNode.toString(), MyPoint.class);
+					pointMap.put(node,myPoint.getPoint());
+				}
+				
 			}
+			 return new SaveContainer(graph, pointMap);//new SaveContainer(graph, pointMap);
 		}
+		
 	}
