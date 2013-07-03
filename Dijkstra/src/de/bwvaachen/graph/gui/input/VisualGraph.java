@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
@@ -16,12 +17,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -47,30 +50,26 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	private HashSet<IGraphComponentChangedListener> graphComponentListener = new HashSet<IGraphComponentChangedListener>();
 	private NodeDisplayProvider nodeDisplayProvider;
 	private boolean editMode;
+	private ImageIcon image;
 
 	/**
 	 * Create the panel.
 	 */
 	public VisualGraph(boolean editMode) {
-		this.editMode=editMode;
+		this.editMode = editMode;
 		setLayout(new GridLayout(0, 1));
+		setBackgroundImage("icons\\hauptstadt_europa.png");
 		graph = new Graph();
 		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane);
-
 		panel = new JPanel() {
 			@Override
 			public void paintComponent(Graphics g) {
-				// g.setColor(Color.WHITE);
-				// g.fillRect(0, 0, getWidth(), getHeight());
-				// g.setColor(Color.BLACK);
+
 				super.paintComponent(g);
+				if(image!=null)
+				g.drawImage(image.getImage(), 0, 0, VisualGraph.this);
 				drawPathsAndConnection((Graphics2D) g);
-
-				// for(VisualNode node:nodes.values())
-				// node.testpaintComponent(g);
-				//
-
 			}
 		};
 
@@ -81,20 +80,20 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			JMenuItem mntmAddNode = new JMenuItem("Add Node");
 			mntmAddNode.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-                   PointerInfo info = MouseInfo.getPointerInfo();
-				    Point location = info.getLocation();
-				    Point locationOfInsert=VisualGraph.this.getMousePosition();
-					AddNodeDialog addNodeDialog = new AddNodeDialog(graph,location);
+					PointerInfo info = MouseInfo.getPointerInfo();
+					Point location = info.getLocation();
+					Point locationOfInsert = VisualGraph.this
+							.getMousePosition();
+					AddNodeDialog addNodeDialog = new AddNodeDialog(graph,
+							location);
 					addNodeDialog.setVisible(true);
-					if(addNodeDialog.newNodeWasCreated())
-					{
-						Node node=addNodeDialog.getNode();
-						if(locationOfInsert==null)
-							locationOfInsert=new Point(0,0);
+					if (addNodeDialog.newNodeWasCreated()) {
+						Node node = addNodeDialog.getNode();
+						if (locationOfInsert == null)
+							locationOfInsert = new Point(0, 0);
 						addNodeAtPosition(node, locationOfInsert);
 					}
 				}
-
 
 			});
 			popupMenu.add(mntmAddNode);
@@ -117,43 +116,52 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 
 	}
 
+	public void setBackgroundImage(String path) {
+		if (path != null) {
+			File file = new File(path);
+			if (file.exists()) {
+image=new ImageIcon(file.getAbsolutePath());
+			}
+		}
+	}
+
 	public VisualGraph(Graph graph, boolean editMode) {
 		this(editMode);
 		initGraph(graph);
 	}
+
 	public VisualGraph(VisualGraphContainer container, boolean editMode) {
-		this(container.getGraph(),editMode);
+		this(container.getGraph(), editMode);
 		repaint(0, 0, getSize().width, getSize().height);
 	}
-	public void setPositionOfNodes(VisualGraphContainer container)
-	{
-		for(Entry<Node,Point>entry:container.getPointMap().entrySet())
-		{
+
+	public void setPositionOfNodes(VisualGraphContainer container) {
+		for (Entry<Node, Point> entry : container.getPointMap().entrySet()) {
 			VisualNode visualNode = this.nodes.get(entry.getKey());
-			if(visualNode!=null)
+			if (visualNode != null)
 				visualNode.setLocation(entry.getValue());
 		}
 	}
-	
-	public VisualGraphContainer  getVisualGraphContainer()
-	{
-		Graph graph=new Graph(this.graph);
+
+	public VisualGraphContainer getVisualGraphContainer() {
+		Graph graph = new Graph(this.graph);
 		return new VisualGraphContainer(graph, this.nodes);
 	}
+
 	private void addNodeAtPosition(Node node, Point position) {
-		VisualNode visualNode=new VisualNode(this, node, null);
+		VisualNode visualNode = new VisualNode(this, node, null);
 		visualNode.setLocation(position);
 		nodes.put(node, visualNode);
 		graph.addNode(node);
 		commitChange();
 	}
-	public void commitChange()
-	{
-		for(IGraphComponentChangedListener listener:graphComponentListener)
-		{
+
+	public void commitChange() {
+		for (IGraphComponentChangedListener listener : graphComponentListener) {
 			listener.graphChanged(graph);
 		}
 	}
+
 	@Override
 	public void graphChanged(Graph graph) {
 		panel.removeAll();
@@ -174,8 +182,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 					createPopupForVisualNode(visualNode);
 					visualNode.setLocation(position);
 					position.x += visualNode.getWidth();
-					if (position.x + 30 > this.getWidth())
-					{
+					if (position.x + 30 > this.getWidth()) {
 						position.x = 0;
 						position.y += 30;
 					}
@@ -189,22 +196,21 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		repaint(0, 0, getSize().width, getSize().height);
 	}
 
-	private void createPopupForVisualNode(final VisualNode visualNode)
-	{
-		if(editMode)
-		{
+	private void createPopupForVisualNode(final VisualNode visualNode) {
+		if (editMode) {
 			final JPopupMenu popupMenu = new JPopupMenu("Popup");
 			visualNode.addMouseListener(new MouseAdapter() {
-				 public void mousePressed(MouseEvent ev) {
-					 MouseEvent test =ev;
-					 if (ev.getButton()==3) {
-					 Point mousePosition = VisualGraph.this.getMousePosition();
-					 if(mousePosition!=null)
-					 { 
-				        popupMenu.show(VisualGraph.this, mousePosition.x, mousePosition.y);
-				      }
-				      }
-				 }
+				public void mousePressed(MouseEvent ev) {
+					MouseEvent test = ev;
+					if (ev.getButton() == 3) {
+						Point mousePosition = VisualGraph.this
+								.getMousePosition();
+						if (mousePosition != null) {
+							popupMenu.show(VisualGraph.this, mousePosition.x,
+									mousePosition.y);
+						}
+					}
+				}
 			});
 			JMenuItem mntmRemoveNode = new JMenuItem("Remove Node");
 			mntmRemoveNode.addActionListener(new ActionListener() {
@@ -217,13 +223,11 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		}
 	}
 
-
 	private HashMap<Node, VisualNode> equalElements(Graph newGraph) {
 		HashMap<Node, VisualNode> result = new HashMap<Node, VisualNode>();
 		for (Node node : newGraph.getNodes()) {
 
-			if (nodes.containsKey(node))
-			{
+			if (nodes.containsKey(node)) {
 				result.put(node, nodes.get(node));
 			}
 		}
@@ -425,8 +429,9 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	public void addConnection(Connection connection) {
 		graph.addConnection(connection);
 		repaint(0, 0, getSize().width, getSize().height);
-		commitChange();		
+		commitChange();
 	}
+
 	protected void removeNode(Node node) {
 		graph.removeNode(node);
 		repaint(0, 0, getSize().width, getSize().height);
