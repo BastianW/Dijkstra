@@ -36,6 +36,7 @@ import de.bwvaachen.graph.gui.input.visualgraph.AddConnection;
 import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphPropertiesDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Graph;
@@ -111,7 +112,16 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 				}
 			});
 			popupMenu.add(mntmAddConnection);
-
+			
+			JMenuItem mntmProperties=new JMenuItem("Properties");
+			mntmProperties.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+//					VisualGraphPropertiesDialog visualGraphPropertiesDialog=new  VisualGraphPropertiesDialog();
+//					visualGraphPropertiesDialog.setVisible(true);
+				}
+			});
+			popupMenu.add(mntmProperties);
 		}
 		panel.setLayout(null);
 		// add(panel);
