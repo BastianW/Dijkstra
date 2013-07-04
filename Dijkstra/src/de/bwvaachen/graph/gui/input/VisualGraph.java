@@ -102,7 +102,12 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			mntmAddConnection.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					new AddConnection(VisualGraph.this);
+					AddConnection addConnection = new AddConnection(graph);
+					if(addConnection.isConnectionAdded())
+					{
+						repaint(0, 0, getSize().width, getSize().height);
+						commitChange();
+					}
 				}
 			});
 			popupMenu.add(mntmAddConnection);

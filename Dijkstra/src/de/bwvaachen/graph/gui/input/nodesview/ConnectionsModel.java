@@ -62,5 +62,13 @@ public class ConnectionsModel implements INodesViewTreeModel {
 		}
 		return index;
 	}
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		return toString().equals(obj);
+	}
 
 }

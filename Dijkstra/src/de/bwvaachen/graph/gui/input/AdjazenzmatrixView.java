@@ -13,6 +13,8 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +37,7 @@ import de.bwvaachen.graph.logic.Node;
 import de.bwvaachen.graph.logic.Path;
 import de.bwvaachen.graph.logic.algorithm.WeightedNode;
 
-public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
+public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener {
 
 	static final Color DEFAULTCOLOR_JTEXTFIELD = UIManager
 			.getColor("TextField.background");
@@ -44,52 +46,62 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 	private JTextField[][] nodeWeigths;
 	private JLabel[] labels;
 	private WeightMode mode;
-	private HashSet<IGraphComponentChangedListener>graphComponentListener=new HashSet<IGraphComponentChangedListener>();
+	private Integer focusX = null;
+	private Integer focusY = null;
+	boolean shouldCommit=false;
+	private HashSet<IGraphComponentChangedListener> graphComponentListener = new HashSet<IGraphComponentChangedListener>();
 
 	/**
 	 * Create the panel.
 	 */
 	public AdjazenzmatrixView(int countNodes, WeightMode mode) {
-		Set<Node>nodes=new HashSet<Node>();
-		for(int i=0;i<countNodes;i++)
-		{
-			nodes.add(new Node(""+(char)(65+i)));
+		Set<Node> nodes = new HashSet<Node>();
+		for (int i = 0; i < countNodes; i++) {
+			nodes.add(new Node("" + (char) (65 + i)));
 		}
-			
-		List<Connection>connections=new LinkedList<Connection>();
-		List<Path>paths=new LinkedList<Path>();
-		Graph graph=new Graph(nodes, connections, paths);
-		init(graph,mode);
+
+		List<Connection> connections = new LinkedList<Connection>();
+		List<Path> paths = new LinkedList<Path>();
+		Graph graph = new Graph(nodes, connections, paths);
+		init(graph, mode);
 	}
+
 	public AdjazenzmatrixView(Graph graph, WeightMode mode) {
 		init(graph, mode);
 	}
-	private void init(Graph graph, WeightMode mode)
-	{
-		ArrayList<Node>nodes=new ArrayList<Node>(graph.getNodes());
-		LinkedList<Connection>connections=new LinkedList<Connection>(graph.getSortedConnections());
-		int countNodes=nodes.size();
+
+	private void init(Graph graph, WeightMode mode) {
+		ArrayList<Node> nodes = new ArrayList<Node>(graph.getNodes());
+		Collections.sort(nodes, new Comparator<Node>() {
+			@Override
+			public int compare(Node o1, Node o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		LinkedList<Connection> connections = new LinkedList<Connection>(
+				graph.getSortedConnections());
+		int countNodes = nodes.size();
 		setLayout(new BorderLayout(0, 0));
-		JScrollPane scrollPane=new JScrollPane();
+		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane);
-		JPanel panel=new JPanel(){
+		JPanel panel = new JPanel() {
 			@Override
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				if(nodeNames!=null && nodeNames.length>0)
-				{
-				    Graphics2D g2d = (Graphics2D)g;
-				    Stroke stroke = g2d.getStroke();
-				    g2d.setStroke(new BasicStroke(3));
-					Rectangle rec=nodeNames[0].getBounds();
-					g.drawLine(rec.width+3, 0,rec.width+3, this.getHeight());
-					g.drawLine(0, rec.height+2,this.getWidth(), rec.height+2);
+				if (nodeNames != null && nodeNames.length > 0) {
+					Graphics2D g2d = (Graphics2D) g;
+					Stroke stroke = g2d.getStroke();
+					g2d.setStroke(new BasicStroke(3));
+					Rectangle rec = nodeNames[0].getBounds();
+					g.drawLine(rec.width + 3, 0, rec.width + 3,
+							this.getHeight());
+					g.drawLine(0, rec.height + 2, this.getWidth(),
+							rec.height + 2);
 					g2d.setStroke(stroke);
 				}
 			}
 		};
-		
-		
+
 		this.mode = mode;
 
 		panel.setLayout(new GridLayout(0, countNodes, 10, 5));
@@ -127,58 +139,67 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 				panel.add(new JLabel());
 			}
 			for (int inputFieldIndex = 0; inputFieldIndex < nodeWeigths[i].length; inputFieldIndex++) {
-				JTextField nodeWeightInput = createNodeWeightInput();
-				nodeWeigths[i][inputFieldIndex]=nodeWeightInput;
+				JTextField nodeWeightInput = createNodeWeightInput(i,inputFieldIndex);
+				nodeWeigths[i][inputFieldIndex] = nodeWeightInput;
 				panel.add(nodeWeightInput);
 			}
 		}
 		scrollPane.setViewportView(panel);
-		while(!connections.isEmpty())
-		{
-			Connection connection=connections.removeFirst();
-			
-			int rawIndex1=nodes.indexOf(connection.getEndNode());
-			int rawIndex2=nodes.indexOf(connection.getStartNode());
-			int index1=rawIndex1<rawIndex2?rawIndex1:rawIndex2;
-			int index2=(rawIndex1>rawIndex2?rawIndex1:rawIndex2)-index1-1;
-			nodeWeigths[index1][index2].setText(connection.getEdge().getWeight().toString());
+		while (!connections.isEmpty()) {
+			Connection connection = connections.removeFirst();
+
+			int rawIndex1 = nodes.indexOf(connection.getEndNode());
+			int rawIndex2 = nodes.indexOf(connection.getStartNode());
+			int index1 = rawIndex1 < rawIndex2 ? rawIndex1 : rawIndex2;
+			int index2 = (rawIndex1 > rawIndex2 ? rawIndex1 : rawIndex2)
+					- index1 - 1;
+			nodeWeigths[index1][index2].setText(connection.getEdge()
+					.getWeight().toString());
 		}
 		doLayout();
 	}
+
 	@Override
 	public void graphChanged(Graph graph) {
 		removeAll();
-		init(graph, mode);		
+		init(graph, mode);
+		if(focusX!=null)
+		{
+			if(focusY==null)
+			nodeNames[focusX].requestFocus();
+			else
+			nodeWeigths[focusX][focusY].requestFocus();
+
+		}
 	}
-	
-	public void commitChange()
-	{
-		Graph graph=null;
+
+	public void commitChange() {
+		Graph graph = null;
 		try {
 			graph = getGraph();
-			for(IGraphComponentChangedListener listener:graphComponentListener)
-		{
-			listener.graphChanged(graph);
-		}
+			for (IGraphComponentChangedListener listener : graphComponentListener) {
+				listener.graphChanged(graph);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
-	
-	public void addGraphComponentChangedListener(IGraphComponentChangedListener listener)
-	{
+
+	public void addGraphComponentChangedListener(
+			IGraphComponentChangedListener listener) {
 		graphComponentListener.add(listener);
 	}
-	public void removeGraphComponentChangedListener(IGraphComponentChangedListener listener)
-	{
+
+	public void removeGraphComponentChangedListener(
+			IGraphComponentChangedListener listener) {
 		graphComponentListener.remove(listener);
 	}
 
-	private JTextField createNodeWeightInput() {
+	private JTextField createNodeWeightInput(int indexX, int indexY) {
 		JTextField textField = new JTextField();
 		textField.setHorizontalAlignment(JTextField.CENTER);
-		NodeWeightListener weightListener = new NodeWeightListener();
+		NodeWeightListener weightListener = new NodeWeightListener(indexX,indexY);
 		textField.setInputVerifier(weightListener);
 		textField.addKeyListener(weightListener);
 		textField.addFocusListener(weightListener);
@@ -196,8 +217,7 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 		return textField;
 	}
 
-	private List<Connection> getSortedConnectionList(Node[] nodes) 
-	{
+	private List<Connection> getSortedConnectionList(Node[] nodes) {
 		List<Connection> resultSet = new LinkedList<Connection>();
 		for (int i = 0; i < nodes.length - 1; i++) {
 			for (int j = 0; j < nodeWeigths[i].length; j++) {
@@ -205,7 +225,7 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 				if (number != null) {
 					Edge edge = new Edge(number);
 					Node node1 = nodes[i];
-					Node node2 = nodes[i + j+1];
+					Node node2 = nodes[i + j + 1];
 					Connection connection = new Connection(node1, node2, edge);
 					resultSet.add(connection);
 				}
@@ -214,30 +234,30 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 
 		return resultSet;
 	}
-	private Node[] getNodes()
-	{
+
+	private Node[] getNodes() {
 		Node[] nodes = new Node[nodeNames.length];
 		for (int i = 0; i < nodes.length; i++) {
 			nodes[i] = new Node(nodeNames[i].getText().trim());
 		}
 		return nodes;
 	}
-	public Graph getGraph()throws Exception// TODO Exception should be specific
+
+	public Graph getGraph() throws Exception// TODO Exception should be specific
 	{
 		if (!checkNames())
 			throw new Exception();
 		Node[] nodes = getNodes();
 
 		List<Connection> sortedConnectionSet = getSortedConnectionList(nodes);
-		Set<Node>nodeSet=new HashSet<Node>();
-		for(Node n: nodes)
-		{
+		Set<Node> nodeSet = new HashSet<Node>();
+		for (Node n : nodes) {
 			nodeSet.add(n);
 		}
-		Set<Path> paths=new HashSet<Path>();
-		
-		Graph graph=new Graph(nodeSet,sortedConnectionSet, paths);
-		return graph;//TODO
+		Set<Path> paths = new HashSet<Path>();
+
+		Graph graph = new Graph(nodeSet, sortedConnectionSet, paths);
+		return graph;// TODO
 	}
 
 	private Number transformToNumber(JTextField field) {
@@ -309,15 +329,14 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 
 		@Override
 		public void focusLost(FocusEvent e) {
-			JTextField textfield=(JTextField) e.getComponent();
-			if (index - 1 >= 0 && index-1<labels.length) {
+			JTextField textfield = (JTextField) e.getComponent();
+			if (index - 1 >= 0 && index - 1 < labels.length) {
 				String text = textfield.getText();
 				labels[index - 1].setText(text);
 			}
-			if(lastCommit!=null && !lastCommit.equals(textfield.getText()))
-			{
-				lastCommit=null;
-				commitChange();
+			if (lastCommit != null && !lastCommit.equals(textfield.getText())) {
+				lastCommit = null;
+				shouldCommit=true;
 			}
 		}
 
@@ -332,8 +351,8 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 		@Override
 		public void keyPressed(KeyEvent e) {
 			JTextField textfield = (JTextField) e.getComponent();
-			if(lastCommit==null)
-				lastCommit=textfield.getText();
+			if (lastCommit == null)
+				lastCommit = textfield.getText();
 		}
 
 		@Override
@@ -342,6 +361,13 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 
 		@Override
 		public void focusGained(FocusEvent e) {
+			if(shouldCommit)
+			{
+				shouldCommit=false;
+			AdjazenzmatrixView.this.focusX=index;
+			AdjazenzmatrixView.this.focusY=null;
+			commitChange();
+			}
 		}
 
 		// class BlinkActivity implements Runnable
@@ -379,10 +405,18 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 		// }
 	}
 
-	class NodeWeightListener extends InputVerifier implements KeyListener ,FocusListener {
+	class NodeWeightListener extends InputVerifier implements KeyListener,
+			FocusListener {
 
 		boolean wasWrong = false;
 		private String lastCommit;
+		private int indexX;
+		private int indexY;
+
+		public NodeWeightListener(int indexX, int indexY) {
+			this.indexX = indexX;
+			this.indexY = indexY;
+		}
 
 		@Override
 		public boolean verify(JComponent input) {
@@ -449,14 +483,14 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 				wasWrong = false;
 				textfield.setBackground(DEFAULTCOLOR_JTEXTFIELD);
 			}
-			
+
 		}
 
 		@Override
 		public void keyPressed(KeyEvent e) {
 			JTextField textfield = (JTextField) e.getComponent();
-			if(lastCommit==null)
-				lastCommit=textfield.getText();
+			if (lastCommit == null)
+				lastCommit = textfield.getText();
 		}
 
 		@Override
@@ -465,17 +499,23 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener{
 
 		@Override
 		public void focusGained(FocusEvent e) {
-			
+			if(shouldCommit)
+			{
+				shouldCommit=false;
+			AdjazenzmatrixView.this.focusX=indexX;
+			AdjazenzmatrixView.this.focusY=indexY;
+			commitChange();
+			}
 		}
 
 		@Override
 		public void focusLost(FocusEvent e) {
 			JTextField textfield = (JTextField) e.getComponent();
-			if(lastCommit!=null&&!lastCommit.equals(textfield.getText()))
-			{
-				lastCommit=null;
-				commitChange();
+			if (lastCommit != null && !lastCommit.equals(textfield.getText())) {
+				lastCommit = null;
+			shouldCommit=true;
 			}
+
 		}
 	}
 }

@@ -61,4 +61,12 @@ public class PathModel implements INodesViewTreeModel{
 		public int getIndexOfChild(Object child) {
 			return -1;
 		}
+		@Override
+		public int hashCode() {
+			return toString().hashCode();
+		}
+		@Override
+		public boolean equals(Object obj) {
+			return toString().equals(obj);
+		}
 	}

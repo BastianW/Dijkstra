@@ -52,5 +52,12 @@ public class PathsModel implements INodesViewTreeModel {
 	public String toString() {
 		return "Paths";
 	}
-
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		return toString().equals(obj);
+	}
 }

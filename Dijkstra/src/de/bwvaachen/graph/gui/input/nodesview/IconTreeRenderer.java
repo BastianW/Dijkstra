@@ -1,6 +1,9 @@
 package de.bwvaachen.graph.gui.input.nodesview;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 
 import javax.swing.Icon;
@@ -14,6 +17,7 @@ public class IconTreeRenderer extends DefaultTreeCellRenderer {
 	  private static final Icon pathIcon = new ImageIcon( "icons"+File.separator+"path.jpg" );
 	  private static final Icon connectionsIcon = new ImageIcon( "icons"+File.separator+"connection.png" );
 	  private static final Icon nodeIcon = new ImageIcon( "icons"+File.separator+"node.jpg" );
+
 	  
 	  public IconTreeRenderer() 
 	  {
@@ -29,19 +33,30 @@ public class IconTreeRenderer extends DefaultTreeCellRenderer {
 	                                                 boolean hasFocus ) {
 	    String stringValue = tree.convertValueToText( value, sel,
 	                                                  expanded, leaf, row, hasFocus );
-	    
-	    if (value instanceof Node) //Sollte immer erfuellt sein
-	     setIcon(nodeIcon);
-	    else if(value instanceof ConnectionModel)
-	    	setIcon(nodeIcon);
-	    else if(value instanceof ConnectionsModel)
-	    	setIcon(connectionsIcon);
-	    else if(value instanceof PathsModel)
-	    	setIcon(pathIcon);
-	    else if(value instanceof PathModel)
-	    	setIcon(pathIcon);
-	    else 
-	    	setIcon(nodeIcon);
+				 if (value instanceof Node) //Sollte immer erfuellt sein
+		 {
+			 setIcon(nodeIcon);
+
+		 }
+		    else if(value instanceof ConnectionModel)
+		    {
+		    	setIcon(nodeIcon);
+		    }
+		    else if(value instanceof ConnectionsModel)
+		    {
+		    	setIcon(connectionsIcon);
+		    }
+		    else if(value instanceof PathsModel)
+		    	setIcon(pathIcon);
+		    else if(value instanceof PathModel)
+		    	setIcon(pathIcon);
+		    else if(value instanceof String)
+		    {
+		    	setIcon(nodeIcon);
+
+		    }
+
+	   
 	    setText( stringValue );
 	    if ( sel )
 	      setForeground( getTextSelectionColor() );

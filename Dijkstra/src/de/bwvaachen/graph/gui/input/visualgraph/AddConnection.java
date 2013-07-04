@@ -7,11 +7,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.LinkedList;
 import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,12 +20,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import de.bwvaachen.graph.gui.MyDialog;
-import de.bwvaachen.graph.gui.input.VisualGraph;
 import de.bwvaachen.graph.logic.Connection;
 import de.bwvaachen.graph.logic.Edge;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.Node;
-import java.awt.Dialog.ModalityType;
 
 public class AddConnection extends MyDialog {
 
@@ -33,13 +31,39 @@ public class AddConnection extends MyDialog {
 	private JComboBox endNode_comboBox;
 	private JComboBox startNode_comboBox;
 	private JSpinner spinner;
+	private boolean isConnectionAdded;
+	private Connection connection;
 
 	/**
 	 * Create the dialog.
 	 */
-	public AddConnection(final VisualGraph visualGraph) {
+	public AddConnection(final Graph graph) {
+		Set<Node> nodes = graph.getNodes();
+		Object[] array = nodes.toArray();
+		init(graph, true, array, array);
+	}
+	public AddConnection(Graph graph, Node node) {
+		LinkedList<Node> tmpHash=new LinkedList<Node>(graph.getNodes());
+		tmpHash.remove(node);
+		for(Connection c:graph.getSortedConnections())
+		{
+			if(c.containsNode(node))
+			{
+				Node n=c.getTheOtherNode(node);
+				tmpHash.remove(n);
+			}
+		}
+		if(tmpHash.isEmpty())
+		{
+			JOptionPane.showMessageDialog(AddConnection.this, "Connected to every other Node","No new connection possible",JOptionPane.ERROR_MESSAGE);
+			setVisible(false);
+		}
+		else
+		init(graph,true,new Object[]{node},tmpHash.toArray());
+	}
+	private void init(final Graph graph , boolean setVisible, Object[] array1, Object[] array2)
+	{
 		setModalityType(ModalityType.APPLICATION_MODAL);
-		Graph graph=visualGraph.getGraph();
 		Set<Node> nodes = graph.getNodes();
 		if(!nodes.isEmpty()){
 		setModalityType(ModalityType.APPLICATION_MODAL);
@@ -53,7 +77,7 @@ public class AddConnection extends MyDialog {
 		contentPanel.add(lblStartnode);
 		
 		
-		startNode_comboBox = new JComboBox(nodes.toArray());
+		startNode_comboBox = new JComboBox(array1);
 		startNode_comboBox.setSelectedIndex(0);
 		startNode_comboBox.addMouseWheelListener(new MouseWheelListener() {
 			
@@ -79,7 +103,7 @@ public class AddConnection extends MyDialog {
 		contentPanel.add(lblEndnode);
 
 
-		endNode_comboBox = new JComboBox(nodes.toArray());
+		endNode_comboBox = new JComboBox(array2);
 		endNode_comboBox.setSelectedIndex(0);
 		endNode_comboBox.addMouseWheelListener(new MouseWheelListener() {
 			
@@ -135,6 +159,8 @@ public class AddConnection extends MyDialog {
 
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
+
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Node node1=(Node) startNode_comboBox.getSelectedItem();
@@ -155,7 +181,9 @@ public class AddConnection extends MyDialog {
 				Connection connection =new Connection(node1,node2, edge);
 				try
 				{
-				visualGraph.addConnection(connection);
+				graph.addConnection(connection);
+				isConnectionAdded=true;
+				AddConnection.this.connection=connection;
 				}
 				catch(Exception e1)
 				{
@@ -180,10 +208,24 @@ public class AddConnection extends MyDialog {
 		buttonPane.add(cancelButton);
 		doLayout();
 		adjust();
-		setVisible(true);
-		startNode_comboBox.requestFocus();
+		if(setVisible)
+		{
+			setVisible(setVisible);
+			startNode_comboBox.requestFocus();
+		}
+		
 	}
 		else
 			dispose();
 	}
+
+	public boolean isConnectionAdded()
+	{
+		return isConnectionAdded;
+	}
+	public Connection getConnection()
+	{
+		return this.connection;
+	}
+
 }

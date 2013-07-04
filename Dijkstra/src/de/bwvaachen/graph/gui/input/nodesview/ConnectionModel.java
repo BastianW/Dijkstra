@@ -43,4 +43,12 @@ public class ConnectionModel implements INodesViewTreeModel{
 	public Connection getConnection() {
 		return connection;
 	}
+	@Override
+	public int hashCode() {
+		return toString().hashCode();
+	}
+	@Override
+	public boolean equals(Object obj) {
+		return toString().equals(obj);
+	}
 }
