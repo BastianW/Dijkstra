@@ -36,6 +36,7 @@ import de.bwvaachen.graph.gui.input.visualgraph.AddConnection;
 import de.bwvaachen.graph.gui.input.visualgraph.AddNodeDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.NodeDisplayProvider;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
+import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphProperties;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphPropertiesDialog;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualNode;
 import de.bwvaachen.graph.logic.Connection;
@@ -51,8 +52,8 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	private HashSet<IGraphComponentChangedListener> graphComponentListener = new HashSet<IGraphComponentChangedListener>();
 	private NodeDisplayProvider nodeDisplayProvider;
 	private boolean editMode;
-	private ImageIcon image;
-	private int scaleFactor=300;
+	
+	private VisualGraphProperties properties;
 
 	/**
 	 * Create the panel.
@@ -60,17 +61,15 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	public VisualGraph(boolean editMode) {
 		this.editMode = editMode;
 		setLayout(new GridLayout(0, 1));
-		setBackgroundImage("icons\\hauptstadt_europa.png");
 		graph = new Graph();
 		JScrollPane scrollPane = new JScrollPane();
 		add(scrollPane);
 		panel = new JPanel() {
 			@Override
 			public void paintComponent(Graphics g) {
-
+				if(properties.isBackgroundImageIsShown()&& properties.getBackgroundImage()!=null)
+				g.drawImage(properties.getBackgroundImage(), 0, 0, VisualGraph.this);
 				super.paintComponent(g);
-				if(image!=null)
-				g.drawImage(image.getImage(), 0, 0, VisualGraph.this);
 				drawPathsAndConnection((Graphics2D) g);
 			}
 		};
@@ -118,8 +117,8 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			mntmProperties.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-//					VisualGraphPropertiesDialog visualGraphPropertiesDialog=new  VisualGraphPropertiesDialog();
-//					visualGraphPropertiesDialog.setVisible(true);
+					VisualGraphPropertiesDialog visualGraphPropertiesDialog=new  VisualGraphPropertiesDialog(properties);
+					visualGraphPropertiesDialog.setVisible(true);
 				}
 			});
 			popupMenu.add(mntmProperties);
@@ -129,22 +128,13 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		panel.setSize(new Dimension(430, 430));
 		panel.setMinimumSize(new Dimension(430, 430));
 		scrollPane.setViewportView(panel);
-
+		properties=new VisualGraphProperties(1,1,3,Color.BLACK,Color.BLACK,Color.GREEN,true,false,true,null,panel.getSize());
 	}
 
-	public void setBackgroundImage(String path) {
-		if (path != null) {
-			File file = new File(path);
-			if (file.exists()) {
-image=new ImageIcon(file.getAbsolutePath());
-			}
-		}
-	}
 
 	public VisualGraph(Graph graph, boolean editMode) {
 		this(editMode);
 		initGraph(graph);
-		calculateConnectionWeight();
 		repaint(0, 0, getSize().width, getSize().height);
 	}
 
@@ -331,6 +321,10 @@ image=new ImageIcon(file.getAbsolutePath());
 
 	private void drawPathsAndConnection(Graphics2D g2d) {
 		if (graph != null) {
+			Stroke stroke = g2d.getStroke();
+			g2d.setStroke(new BasicStroke(properties.getConnectionWeight()));
+			Color color = g2d.getColor();
+			g2d.setColor(properties.getConnectionColor());
 			List<Connection> sortedConnections = graph.getSortedConnections();
 			for (Connection connection : sortedConnections) {
 				VisualNode startNode = nodes.get(connection.getStartNode());
@@ -348,8 +342,8 @@ image=new ImageIcon(file.getAbsolutePath());
 			for (Path path : paths) {
 				connections.addAll(path.getConnections());
 			}
-			Stroke stroke = g2d.getStroke();
-			g2d.setStroke(new BasicStroke(3));
+			g2d.setColor(properties.getPathColor());
+			g2d.setStroke(new BasicStroke(properties.getPathWeight()));
 			for (Connection connection : connections) {
 				VisualNode startNode = nodes.get(connection.getStartNode());
 				VisualNode endNode = nodes.get(connection.getEndNode());
@@ -361,8 +355,7 @@ image=new ImageIcon(file.getAbsolutePath());
 
 			}
 			g2d.setStroke(stroke);
-			Color color = g2d.getColor();
-			g2d.setColor(Color.RED);
+			g2d.setColor(properties.getConnectionColor());
 			for (Connection connection : sortedConnections) {
 				VisualNode startNode = nodes.get(connection.getStartNode());
 				VisualNode endNode = nodes.get(connection.getEndNode());
@@ -473,9 +466,15 @@ image=new ImageIcon(file.getAbsolutePath());
 			
 			int x=p1.x-p2.x;
 			int y=p1.y-p2.y;
-			weight=Math.sqrt(x*x+y*y);
+			weight=Math.sqrt(x*x+y*y)*properties.getScaleFactor();
 			
 			c.getEdge().setWeight(weight);
 		}
+	}
+
+
+	public void recalculate() {
+		if(properties.isScaleFactorIsUsed())
+			calculateConnectionWeight();		
 	}
 }

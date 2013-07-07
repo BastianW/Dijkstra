@@ -1,39 +1,38 @@
 package de.bwvaachen.graph.gui.input.visualgraph;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import java.awt.GridLayout;
-import javax.swing.JCheckBox;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JTextField;
-import javax.swing.JSpinner;
-import javax.swing.JComboBox;
-import javax.swing.SpinnerModel;
-
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.prefs.BackingStoreException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class VisualGraphPropertiesDialog extends JDialog {
 
@@ -79,6 +78,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 	private Image apply_BackgroundImage;
 
 	private boolean apply_LabelOpaque;
+	private JPopupMenu popupMenu;
+	private JLabel lblPreview;
+	private VisualGraphProperties properties;
+
+	private boolean apply_BackgroundImageIsShown;
+	private JMenuItem mntmTest;
 	
 
 
@@ -88,7 +93,8 @@ public class VisualGraphPropertiesDialog extends JDialog {
 	 */
 	public static void main(String[] args) {
 		try {
-			VisualGraphPropertiesDialog dialog = new VisualGraphPropertiesDialog(new Dimension(800,800),1,Color.BLACK,3,Color.BLUE, true, Color.GREEN);
+			ImageIcon img=new ImageIcon("icons\\hauptstadt_europa.png");
+			VisualGraphPropertiesDialog dialog = new VisualGraphPropertiesDialog(new Dimension(800,800),1,Color.BLACK,3,Color.BLUE, true, Color.GREEN, false,img.getImage());
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -98,8 +104,21 @@ public class VisualGraphPropertiesDialog extends JDialog {
 
 	/**
 	 * Create the dialog.
+	 * @wbp.parser.constructor
 	 */
-	public VisualGraphPropertiesDialog(Dimension dimension,int connectionWeight, Color connectionColor, int pathWeight, Color pathColor, boolean lblOpaque, Color lblColor) {
+	public VisualGraphPropertiesDialog(Dimension dimension,int connectionWeight, Color connectionColor, int pathWeight, Color pathColor, boolean lblOpaque, Color lblColor, boolean hasBackgroundImage, Image backgroundImage)
+	{
+		init(dimension, connectionWeight, connectionColor, pathWeight, pathColor, lblOpaque, lblColor, hasBackgroundImage, backgroundImage);
+	}
+	
+	public VisualGraphPropertiesDialog(VisualGraphProperties properties) {
+		init(properties.getSize(), properties.getConnectionWeight(), properties.getConnectionColor(), properties.getPathWeight(), properties.getPathColor(), properties.isLblOpaque(), properties.getLblColor(), properties.isBackgroundImageIsShown(), properties.getBackgroundImage());
+		this.properties=properties;
+	}
+
+	private void init(Dimension dimension,int connectionWeight, Color connectionColor, int pathWeight, Color pathColor, boolean lblOpaque, Color lblColor, boolean hasBackgroundImage, Image backgroundImage)
+	{
+		apply_BackgroundImage=backgroundImage;
 		setTitle("Properties");
 		
 		this.connectionColor=connectionColor;
@@ -145,11 +164,23 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		size_panel.add(width_spinner);
 		width_spinner.setModel(new SpinnerNumberModel(new Integer(100), new Integer(100), null, new Integer(1)));
 		width_spinner.setValue(dimension.width);
+		width_spinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				anythingChanged();				
+			}
+		});
 		
 		height_spinner = new JSpinner();
 		size_panel.add(height_spinner);
 		height_spinner.setModel(new SpinnerNumberModel(new Integer(100), new Integer(100), null, new Integer(1)));
 		height_spinner.setValue(dimension.height);
+		height_spinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				anythingChanged();				
+			}
+		});
 		
 		JLabel lblConnection = new JLabel("Connection");
 		GridBagConstraints gbc_lblConnection = new GridBagConstraints();
@@ -169,6 +200,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		connectionWeightSpinner = new JSpinner();
 		connectionWeightSpinner.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 		connectionWeightSpinner.setValue(connectionWeight);
+		connectionWeightSpinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				anythingChanged();				
+			}
+		});
 		GridBagConstraints gbc_connectionWeightSpinner = new GridBagConstraints();
 		gbc_connectionWeightSpinner.gridwidth = 2;
 		gbc_connectionWeightSpinner.fill = GridBagConstraints.HORIZONTAL;
@@ -203,8 +240,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				Color tmp=JColorChooser.showDialog(VisualGraphPropertiesDialog.this, "Color Chooser",VisualGraphPropertiesDialog.this.connectionColor);
 				if(tmp!=null)
 				{
+					if(!VisualGraphPropertiesDialog.this.connectionColor.equals(tmp))
+					{
 					VisualGraphPropertiesDialog.this.connectionColor=tmp;
 					printColor(txt_ConnectionColor, tmp);
+					anythingChanged();
+					}
 				}
 			}
 		});
@@ -264,8 +305,11 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				Color tmp=JColorChooser.showDialog(VisualGraphPropertiesDialog.this, "Color Chooser",VisualGraphPropertiesDialog.this.pathColor);
 				if(tmp!=null)
 				{
+					if(!VisualGraphPropertiesDialog.this.pathColor.equals(tmp))
+					{
 					VisualGraphPropertiesDialog.this.pathColor=tmp;
 					printColor(txt_PathColor,tmp);
+					}
 				}
 			}
 		});
@@ -282,6 +326,7 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_lblLabel.gridy = 7;
 		panel.add(lblLabel, gbc_lblLabel);
 		chckbxLabelOpaque = new JCheckBox("Label opaque");
+		chckbxLabelOpaque.setSelected(lblOpaque);
 		chckbxLabelOpaque.addChangeListener(new ChangeListener() {
 			
 			@Override
@@ -294,6 +339,7 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				{
 					labelColorBtn.setEnabled(false);
 				}
+				anythingChanged();
 			}
 		});
 		GridBagConstraints gbc_chckbxLabelOpaque = new GridBagConstraints();
@@ -323,8 +369,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				Color tmp=JColorChooser.showDialog(VisualGraphPropertiesDialog.this, "Color Chooser",VisualGraphPropertiesDialog.this.labelColor);
 				if(tmp!=null)
 				{
-					VisualGraphPropertiesDialog.this.labelColor=tmp;
-					printColor(txt_LabelColor, tmp);
+					if(VisualGraphPropertiesDialog.this.labelColor.equals(tmp))
+					{
+						VisualGraphPropertiesDialog.this.labelColor=tmp;
+						printColor(txt_LabelColor, tmp);
+						anythingChanged();
+					}
 				}
 			}
 		});
@@ -347,9 +397,11 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				{
 					scale_spinner.setEnabled(false);
 				}
+				anythingChanged();
 			}
 		});
 		chckbxBackgroundImage = new JCheckBox("Background Image");
+		chckbxBackgroundImage.setSelected(hasBackgroundImage);
 		chckbxBackgroundImage.addChangeListener(new ChangeListener() {
 			
 			@Override
@@ -369,6 +421,17 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				
 			}
 		});
+		
+		popupMenu = new JPopupMenu();
+		addPreview(chckbxBackgroundImage, popupMenu);
+		
+		lblPreview = new JLabel("Preview");
+		if(backgroundImage!=null)
+			lblPreview.setIcon(new ImageIcon(backgroundImage));
+		
+		mntmTest = new JMenuItem("");
+		popupMenu.add(mntmTest);
+		popupMenu.add(lblPreview);
 		GridBagConstraints gbc_chckbxBackgroundImage = new GridBagConstraints();
 		gbc_chckbxBackgroundImage.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxBackgroundImage.gridx = 0;
@@ -408,6 +471,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		scale_spinner = new JSpinner();
 		scale_spinner.setEnabled(false);
 		scale_spinner.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		scale_spinner.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+			anythingChanged();				
+			}
+		});
 		GridBagConstraints gbc_scale_spinner = new GridBagConstraints();
 		gbc_scale_spinner.fill = GridBagConstraints.HORIZONTAL;
 		gbc_scale_spinner.gridwidth = 2;
@@ -423,6 +492,13 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		applyButton = new JButton("Apply");
 		applyButton.setEnabled(false);
 		buttonPane.add(applyButton);
+		applyButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			apply();
+				
+			}
+		});
 		getRootPane().setDefaultButton(applyButton);
 		
 		
@@ -434,15 +510,12 @@ public class VisualGraphPropertiesDialog extends JDialog {
 			}
 		});
 		buttonPane.add(cancelButton);
-	}
-	
-	private void init()
-	{
-		
+		apply();
 	}
 	private void apply()
 	{
 		apply_Dimension=new Dimension(((Number)width_spinner.getValue()).intValue(), ((Number)height_spinner.getValue()).intValue());
+		apply_LabelOpaque=chckbxLabelOpaque.isSelected();
 		apply_LabelColor=labelColor;
 		
 		apply_ConnectionWeight=((Number)connectionWeightSpinner.getValue()).intValue();
@@ -454,8 +527,29 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		apply_ScaleFactorIsUsed=chckbxScale.isSelected();
 		if(chckbxScale.isSelected())
 		apply_ScaleFactor=((Number)scale_spinner.getValue()).intValue();
-		apply_BackgroundImage=new ImageIcon(txt_Path.getText()).getImage();
+		apply_BackgroundImageIsShown=chckbxBackgroundImage.isSelected();
+		if(chckbxBackgroundImage.isSelected())
+		{
+			File file=new File(txt_Path.getText());
+			if(file.exists())
+			apply_BackgroundImage=new ImageIcon(file.getAbsolutePath()).getImage();
+		}
 		apply_LabelOpaque=chckbxLabelOpaque.isSelected();
+		if(properties!=null)
+		{
+		properties.setBackgroundImage(apply_BackgroundImage);
+		properties.setSize(apply_Dimension);
+		properties.setLblColor(apply_LabelColor);
+		properties.setBackgroundImageIsShown(apply_BackgroundImageIsShown);
+		properties.setLblOpaque(apply_LabelOpaque);
+		properties.setBackgroundImage(apply_BackgroundImage);
+		properties.setConnectionColor(apply_ConnectionColor);
+		properties.setConnectionWeight(apply_ConnectionWeight);
+		properties.setPathColor(apply_PathColor);
+		properties.setPathWeight(apply_PathWeigth);
+		properties.setScaleFactorIsUsed(apply_ScaleFactorIsUsed);
+		properties.setScaleFactor(apply_ScaleFactor);
+		}
 	}
 	private void anythingChanged()
 	{
@@ -502,5 +596,31 @@ public class VisualGraphPropertiesDialog extends JDialog {
 	public boolean isScaleFactorUsed()
 	{
 		return apply_ScaleFactorIsUsed;
+	}
+	private void addPreview(Component component, final JPopupMenu popup) {
+		component.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				mouseEvent(e);
+			}
+			public void mouseReleased(MouseEvent e) {
+				mouseEvent(e);
+			}
+			private void mouseEvent(MouseEvent e) {
+				if(apply_BackgroundImage!=null)
+				{
+					BufferedImage resizedImage = new BufferedImage((int)apply_Dimension.getWidth(), (int)apply_Dimension.getHeight(),BufferedImage.TYPE_INT_RGB);
+					Graphics2D g = resizedImage.createGraphics();
+					g.drawImage(apply_BackgroundImage, 0, 0,(int)apply_Dimension.getWidth(), (int)apply_Dimension.getHeight(), null);
+					ImageIcon icon=new ImageIcon(resizedImage);
+					lblPreview.setIcon(icon);
+				if (e.isPopupTrigger()) {
+					showMenu(e);
+				}
+				}
+			}
+			private void showMenu(MouseEvent e) {
+				popup.show(e.getComponent(), e.getX(), e.getY());
+			}
+		});
 	}
 }

@@ -59,7 +59,7 @@ public class VisualNode extends JLabel implements INode {
 				point.x-=offset.x;
 				point.y-=offset.y;
 					setBounds(new Rectangle(point, getSize()));
-					visualGraph.repaint();
+					visualGraph.recalculate();
 				}}
 				last=System.currentTimeMillis();
 			}
