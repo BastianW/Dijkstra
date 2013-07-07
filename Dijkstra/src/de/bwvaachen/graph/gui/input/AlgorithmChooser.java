@@ -14,7 +14,7 @@ import javax.swing.JButton;
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualatorProvider;
-import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualtorProviderCollector;
+import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualatorProviderCollector;
 import de.bwvaachen.graph.logic.algorithm.dijkstra.DijkstraProvider;
 
 public class AlgorithmChooser extends JPanel{
@@ -30,7 +30,7 @@ public class AlgorithmChooser extends JPanel{
 		
 		JLabel lblAlg = new JLabel("Algorithm");
 		add(lblAlg, BorderLayout.WEST);
-		Object[] array = AlgorithmVisualtorProviderCollector.getProvider().toArray();
+		Object[] array = AlgorithmVisualatorProviderCollector.getProvider().toArray();
 		comboBox = new JComboBox(array);
 		comboBox.addMouseWheelListener(new MouseWheelListener() {
 			

@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import de.bwvaachen.graph.gui.input.visualgraph.VisualGraphContainer;
 import de.bwvaachen.graph.logic.Graph;
 import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualatorProvider;
-import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualtorProviderCollector;
+import de.bwvaachen.graph.logic.algorithm.AlgorithmVisualatorProviderCollector;
 
 public class DijkstraProvider extends AlgorithmVisualatorProvider {
 

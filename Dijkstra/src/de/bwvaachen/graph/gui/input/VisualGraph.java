@@ -52,6 +52,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	private NodeDisplayProvider nodeDisplayProvider;
 	private boolean editMode;
 	private ImageIcon image;
+	private int scaleFactor=300;
 
 	/**
 	 * Create the panel.
@@ -143,6 +144,8 @@ image=new ImageIcon(file.getAbsolutePath());
 	public VisualGraph(Graph graph, boolean editMode) {
 		this(editMode);
 		initGraph(graph);
+		calculateConnectionWeight();
+		repaint(0, 0, getSize().width, getSize().height);
 	}
 
 	public VisualGraph(VisualGraphContainer container, boolean editMode) {
@@ -451,5 +454,28 @@ image=new ImageIcon(file.getAbsolutePath());
 		graph.removeNode(node);
 		repaint(0, 0, getSize().width, getSize().height);
 		commitChange();
+	}
+	
+	private void calculateConnectionWeight()
+	{
+		List<Connection> sortedConnections = graph.getSortedConnections();
+		for(Connection c: sortedConnections)
+		{
+			Node startNode = c.getStartNode();
+			Node endNode = c.getEndNode();
+			
+			VisualNode visualNode1 = nodes.get(startNode);
+			VisualNode visualNode2 = nodes.get(endNode);
+			double weight=0;
+			
+			Point p1=visualNode1.getLocation();
+			Point p2=visualNode2.getLocation();
+			
+			int x=p1.x-p2.x;
+			int y=p1.y-p2.y;
+			weight=Math.sqrt(x*x+y*y);
+			
+			c.getEdge().setWeight(weight);
+		}
 	}
 }

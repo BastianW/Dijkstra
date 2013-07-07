@@ -14,6 +14,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
@@ -25,6 +26,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
@@ -36,24 +38,50 @@ import javax.swing.SpinnerNumberModel;
 public class VisualGraphPropertiesDialog extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
-	private JTextField path_txt;
-	private JTextField txtConnectionColor;
-	private JTextField txtPathColor;
-	private JTextField txtLabelColor;
-	private JSpinner scale_spinner;
+	
 	private JButton applyButton;
-	private JSpinner width_spinner;
-	private JSpinner height_spinner;
-	protected Color connectionColor;
-	private JSpinner pathWeight_spinner;
-	protected Color pathColor;
 	private JCheckBox chckbxScale;
 	private JCheckBox chckbxBackgroundImage;
-	protected Color labelColor;
 	private JButton backgroundImageBtn;
 	private JCheckBox chckbxLabelOpaque;
 	private JButton labelColorBtn;
+	
+	private JTextField txt_Path;
+	private JTextField txt_ConnectionColor;
+	private JTextField txt_PathColor;
+	private JTextField txt_LabelColor;
+	
+	private JSpinner scale_spinner;
+	private int apply_ScaleFactor;
+	
+	
+	private JSpinner width_spinner;
+	private JSpinner height_spinner;
+	private Dimension apply_Dimension;
+	
+	private Color connectionColor;
+	private Color apply_ConnectionColor;
+	
+	private JSpinner pathWeight_spinner;
+	private int apply_PathWeigth;
+	
+	private Color pathColor;
+	private Color apply_PathColor;
+	
 	private JSpinner connectionWeightSpinner;
+	private int apply_ConnectionWeight;
+	
+	private Color labelColor;
+	private Color apply_LabelColor;
+
+	private boolean apply_ScaleFactorIsUsed;
+	
+	private Image apply_BackgroundImage;
+
+	private boolean apply_LabelOpaque;
+	
+
+
 
 	/**
 	 * Launch the application.
@@ -157,17 +185,17 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_lblConnectionColor.gridx = 0;
 		gbc_lblConnectionColor.gridy = 3;
 		panel.add(lblConnectionColor, gbc_lblConnectionColor);
-		txtConnectionColor = new JTextField();
-		printColor(txtConnectionColor,this.connectionColor);
-		txtConnectionColor.setEditable(false);
+		txt_ConnectionColor = new JTextField();
+		printColor(txt_ConnectionColor,this.connectionColor);
+		txt_ConnectionColor.setEditable(false);
 		GridBagConstraints gbc_txtConnectionColor = new GridBagConstraints();
 		gbc_txtConnectionColor.gridwidth = 2;
 		gbc_txtConnectionColor.insets = new Insets(0, 0, 5, 5);
 		gbc_txtConnectionColor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtConnectionColor.gridx = 2;
 		gbc_txtConnectionColor.gridy = 3;
-		panel.add(txtConnectionColor, gbc_txtConnectionColor);
-		txtConnectionColor.setColumns(10);
+		panel.add(txt_ConnectionColor, gbc_txtConnectionColor);
+		txt_ConnectionColor.setColumns(10);
 		JButton colorChooser1 = new JButton("...");
 		colorChooser1.addActionListener(new ActionListener() {
 			@Override
@@ -176,7 +204,7 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				if(tmp!=null)
 				{
 					VisualGraphPropertiesDialog.this.connectionColor=tmp;
-					printColor(txtConnectionColor, tmp);
+					printColor(txt_ConnectionColor, tmp);
 				}
 			}
 		});
@@ -216,18 +244,18 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_lblPathColor.gridx = 0;
 		gbc_lblPathColor.gridy = 6;
 		panel.add(lblPathColor, gbc_lblPathColor);
-		txtPathColor = new JTextField();
-		txtPathColor.setText("Path Color");
-		txtPathColor.setEditable(false);
+		txt_PathColor = new JTextField();
+		txt_PathColor.setText("00 00 00");
+		txt_PathColor.setEditable(false);
 		GridBagConstraints gbc_txtPathColor = new GridBagConstraints();
 		gbc_txtPathColor.gridwidth = 2;
 		gbc_txtPathColor.insets = new Insets(0, 0, 5, 5);
 		gbc_txtPathColor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtPathColor.gridx = 2;
 		gbc_txtPathColor.gridy = 6;
-		panel.add(txtPathColor, gbc_txtPathColor);
-		txtPathColor.setColumns(10);
-		printColor(txtPathColor,this.pathColor);
+		panel.add(txt_PathColor, gbc_txtPathColor);
+		txt_PathColor.setColumns(10);
+		printColor(txt_PathColor,this.pathColor);
 		JButton colorChooser2 = new JButton("...");
 		colorChooser2.addActionListener(new ActionListener() {
 			
@@ -237,7 +265,7 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				if(tmp!=null)
 				{
 					VisualGraphPropertiesDialog.this.pathColor=tmp;
-					printColor(txtPathColor,tmp);
+					printColor(txt_PathColor,tmp);
 				}
 			}
 		});
@@ -274,9 +302,10 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_chckbxLabelOpaque.gridx = 0;
 		gbc_chckbxLabelOpaque.gridy = 8;
 		panel.add(chckbxLabelOpaque, gbc_chckbxLabelOpaque);
-		txtLabelColor = new JTextField();
-		txtLabelColor.setEditable(false);
-		printColor(txtLabelColor, this.labelColor);
+		txt_LabelColor = new JTextField();
+		txt_LabelColor.setText("00 00 00");
+		txt_LabelColor.setEditable(false);
+		printColor(txt_LabelColor, this.labelColor);
 		GridBagConstraints gbc_txtLabelColor = new GridBagConstraints();
 		gbc_txtLabelColor.anchor = GridBagConstraints.SOUTH;
 		gbc_txtLabelColor.gridwidth = 2;
@@ -284,8 +313,8 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_txtLabelColor.fill = GridBagConstraints.HORIZONTAL;
 		gbc_txtLabelColor.gridx = 2;
 		gbc_txtLabelColor.gridy = 8;
-		panel.add(txtLabelColor, gbc_txtLabelColor);
-		txtLabelColor.setColumns(10);
+		panel.add(txt_LabelColor, gbc_txtLabelColor);
+		txt_LabelColor.setColumns(10);
 		labelColorBtn = new JButton("...");
 		labelColorBtn.addActionListener(new ActionListener() {
 			
@@ -295,7 +324,7 @@ public class VisualGraphPropertiesDialog extends JDialog {
 				if(tmp!=null)
 				{
 					VisualGraphPropertiesDialog.this.labelColor=tmp;
-					printColor(txtLabelColor, tmp);
+					printColor(txt_LabelColor, tmp);
 				}
 			}
 		});
@@ -327,13 +356,15 @@ public class VisualGraphPropertiesDialog extends JDialog {
 			public void stateChanged(ChangeEvent e) {
 				if(chckbxBackgroundImage.isSelected())
 				{
-					path_txt.setEditable(true);
+					txt_Path.setEditable(true);
 					backgroundImageBtn.setEnabled(true);
+					anythingChanged();
 				}
 				else
 				{
-					path_txt.setEditable(false);
+					txt_Path.setEditable(false);
 					backgroundImageBtn.setEnabled(false);
+					anythingChanged();
 				}
 				
 			}
@@ -343,16 +374,16 @@ public class VisualGraphPropertiesDialog extends JDialog {
 		gbc_chckbxBackgroundImage.gridx = 0;
 		gbc_chckbxBackgroundImage.gridy = 10;
 		panel.add(chckbxBackgroundImage, gbc_chckbxBackgroundImage);
-		path_txt = new JTextField();
+		txt_Path = new JTextField();
 		GridBagConstraints gbc_path_txt = new GridBagConstraints();
 		gbc_path_txt.gridwidth = 2;
 		gbc_path_txt.fill = GridBagConstraints.HORIZONTAL;
 		gbc_path_txt.insets = new Insets(0, 0, 5, 5);
 		gbc_path_txt.gridx = 2;
 		gbc_path_txt.gridy = 10;
-		panel.add(path_txt, gbc_path_txt);
-		path_txt.setColumns(35);
-		path_txt.setEditable(false);
+		panel.add(txt_Path, gbc_path_txt);
+		txt_Path.setColumns(35);
+		txt_Path.setEditable(false);
 		backgroundImageBtn = new JButton("...");
 		GridBagConstraints gbc_backgroundImageBtn = new GridBagConstraints();
 		gbc_backgroundImageBtn.insets = new Insets(0, 0, 5, 5);
@@ -411,7 +442,20 @@ public class VisualGraphPropertiesDialog extends JDialog {
 	}
 	private void apply()
 	{
+		apply_Dimension=new Dimension(((Number)width_spinner.getValue()).intValue(), ((Number)height_spinner.getValue()).intValue());
+		apply_LabelColor=labelColor;
 		
+		apply_ConnectionWeight=((Number)connectionWeightSpinner.getValue()).intValue();
+		apply_ConnectionColor=connectionColor;
+		
+		apply_PathWeigth=((Number)pathWeight_spinner.getValue()).intValue();
+		apply_PathColor=pathColor;
+		
+		apply_ScaleFactorIsUsed=chckbxScale.isSelected();
+		if(chckbxScale.isSelected())
+		apply_ScaleFactor=((Number)scale_spinner.getValue()).intValue();
+		apply_BackgroundImage=new ImageIcon(txt_Path.getText()).getImage();
+		apply_LabelOpaque=chckbxLabelOpaque.isSelected();
 	}
 	private void anythingChanged()
 	{
@@ -421,5 +465,42 @@ public class VisualGraphPropertiesDialog extends JDialog {
 	private static void printColor(JTextField field, Color color)
 	{
 	 field.setText(String.format("%02x %02x %02x",color.getRed(),color.getGreen(),color.getBlue()).toUpperCase());
+	}
+	
+	public Dimension getSize()
+	{
+		return apply_Dimension;
+	}
+	public Color getConnectionColor()
+	{
+		return apply_ConnectionColor; 
+	}
+	public Color getPathColor()
+	{
+		return apply_PathColor;
+	}
+	public int getPathWeight()
+	{
+		return apply_PathWeigth;
+	}
+	public int getConnectionWeight()
+	{
+		return apply_ConnectionWeight;
+	}
+	public Color getLabelBackgroundColor()
+	{
+		return apply_LabelColor;
+	}
+	public boolean isLabelOpaque()
+	{
+		return apply_LabelOpaque;
+	}
+	public int getScaleFactor()
+	{
+		return apply_ScaleFactor;
+	}
+	public boolean isScaleFactorUsed()
+	{
+		return apply_ScaleFactorIsUsed;
 	}
 }

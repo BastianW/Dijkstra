@@ -5,7 +5,7 @@ import java.util.Set;
 
 import de.bwvaachen.graph.logic.algorithm.dijkstra.DijkstraProvider;
 
-public class AlgorithmVisualtorProviderCollector {
+public class AlgorithmVisualatorProviderCollector {
 	private static Set<AlgorithmVisualatorProvider> provider=new HashSet<AlgorithmVisualatorProvider>();
 	static
 	{
@@ -17,7 +17,7 @@ public class AlgorithmVisualtorProviderCollector {
 	}
 	public static void addAlgorithmVisualatorProvider(AlgorithmVisualatorProvider provider)
 	{
-		AlgorithmVisualtorProviderCollector.provider.add(provider);
+		AlgorithmVisualatorProviderCollector.provider.add(provider);
 	}
 	
 
