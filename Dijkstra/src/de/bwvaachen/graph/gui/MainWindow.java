@@ -8,11 +8,11 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.AbstractAction;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JDialog;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.bwvaachen.graph.gui.input.GraphInputView;
 import de.bwvaachen.graph.logic.Graph;
+import de.bwvaachen.graph.logic.Node;
 
 public class MainWindow extends JFrame {
 
@@ -126,6 +127,17 @@ public class MainWindow extends JFrame {
 		
 		mnFile.addSeparator();
 		JMenuItem mntmNewGraph = new JMenuItem("New Graph");
+		mntmNewGraph.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Graph graph=new Graph();
+				graph.addNode(new Node("Node1"));
+				graph.addNode(new Node("Node2"));
+				graphInputView.graphChanged(graph);
+				
+			}
+		});
 		mnNew.add(mntmNewGraph);
 		mnFile.add(mntmExit);
 

@@ -154,7 +154,7 @@ public class DijkstraVisualisation extends JPanel {
 				visualGraph.update();
 			}
 		});
-	    slider.setValue(11);
+
 		visualGraphPanel.add(slider,BorderLayout.WEST);
 		
 		JSplitPane splitPane = new JSplitPane();

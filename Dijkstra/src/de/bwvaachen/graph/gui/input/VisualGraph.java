@@ -124,7 +124,8 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		panel.setPreferredSize(new Dimension(430, 430));
 //		panel.setMinimumSize(new Dimension(430, 430));
 		panel.setAutoscrolls(true);
-		scrollPane = new JScrollPane(panel);
+		scrollPane = new JScrollPane();
+		scrollPane.setViewportView(panel);
 		add(scrollPane,BorderLayout.CENTER);
 		properties=new VisualGraphProperties(1,1,3,Color.BLACK,Color.BLACK,Color.GREEN,true,false,false,null,panel.getSize());
 	}
@@ -520,6 +521,7 @@ update();
 
 
 	public void update() {
+//		setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
 		panel.setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
 //		JViewport viewport = scrollPane.getViewport();
 		repaint();//(0, 0, properties.getSize().width, properties.getSize().height);

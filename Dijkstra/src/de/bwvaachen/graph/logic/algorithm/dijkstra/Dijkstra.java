@@ -83,7 +83,7 @@ public class Dijkstra {
 
 	public void doDijkstra() {
 
-		while (!nodes.isEmpty()) {
+		while (!nodes.isEmpty()&&!connectionList.isEmpty()) {
 			stepForward();
 		}
 	}
