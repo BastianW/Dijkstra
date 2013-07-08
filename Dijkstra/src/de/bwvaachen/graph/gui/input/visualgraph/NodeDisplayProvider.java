@@ -1,8 +1,7 @@
 package de.bwvaachen.graph.gui.input.visualgraph;
 
+import java.awt.Color;
 import java.awt.Point;
-
-import de.bwvaachen.graph.logic.Node;
 
 
 public abstract class NodeDisplayProvider {
@@ -12,5 +11,8 @@ public abstract class NodeDisplayProvider {
 	{
 		return new Point(node.getWidth(),0);
 	}
+	public abstract String getTooltipText(VisualNode node);
+	public abstract boolean opaque();
+	public abstract Color labelColor();
 	public abstract String label(String node, Number weight);
 }

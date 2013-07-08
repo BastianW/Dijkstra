@@ -17,26 +17,29 @@ public class VisualGraphContainer {
 	
 	private Graph graph;
 	private HashMap<Node, Point>pointMap=new HashMap<Node, Point>();
+	private VisualGraphProperties properties;
 	public void setGraph(Graph graph) {
 		this.graph = graph;
 	}
 	public void setVisualNodeMap(HashMap<Node, Point> visualNodeMap) {
 		this.pointMap = visualNodeMap;
 	}
-	public VisualGraphContainer(Graph graph,  HashMap<Node, VisualNode> visualNodeMap) {
+	public VisualGraphContainer(Graph graph,  HashMap<Node, VisualNode> visualNodeMap, VisualGraphProperties properties) {
 		this.graph=graph;
 		if(visualNodeMap!=null)
 		for(Entry<Node,VisualNode>entry:visualNodeMap.entrySet())
 		this.pointMap.put(entry.getKey(), entry.getValue().getLocation());
+		this.properties=properties;
 	}
-	public VisualGraphContainer(Graph graph,  HashMap<Node, Point> pointMap, boolean Signaturveränderer) {
+	public VisualGraphContainer(Graph graph,  HashMap<Node, Point> pointMap, VisualGraphProperties properties, boolean Signaturveränderer) {
 		this.graph=graph;
 		if(pointMap!=null)
 		this.pointMap=pointMap;
+		this.properties=properties;
 	}
 	public void save(String filePath) throws JsonGenerationException, JsonMappingException, IOException
 	{
-		new SaveContainer(graph, pointMap).save(filePath);
+		new SaveContainer(graph, pointMap,properties).save(filePath);
 	}
 	public static VisualGraphContainer load(String filePath) throws JsonProcessingException, IOException
 	{
@@ -44,7 +47,7 @@ public class VisualGraphContainer {
 		HashMap<Node, Point>pointMap=new HashMap<Node, Point>();
 		for(Entry<Node,MyPoint>entry:saveContainer.getPointMap().entrySet())
 			pointMap.put(entry.getKey(), entry.getValue().getPoint());
-		 return new VisualGraphContainer(saveContainer.getGraph(), pointMap,false);//new SaveContainer(graph, pointMap);
+		 return new VisualGraphContainer(saveContainer.getGraph(), pointMap,saveContainer.getProperties().getProperties(),false);//new SaveContainer(graph, pointMap);
 	}
 	public HashMap<Node, Point> getPointMap() {
 		return pointMap;
@@ -54,6 +57,9 @@ public class VisualGraphContainer {
 	}
 	public Graph getGraph() {
 		return graph;
+	}
+	public VisualGraphProperties getProperties() {
+		return properties;
 	}
 	
 }

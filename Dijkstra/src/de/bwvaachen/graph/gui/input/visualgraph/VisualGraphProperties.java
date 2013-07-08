@@ -15,7 +15,7 @@ public class VisualGraphProperties {
 	private Color lblColor;
 	private boolean lblOpaque=true;
 	private boolean backgroundImageIsShown=false;
-	private boolean scaleFactorIsUsed;
+	private boolean scaleFactorIsUsed=false;
 	private Image backgroundImage=null;
 	private Dimension size;
 	

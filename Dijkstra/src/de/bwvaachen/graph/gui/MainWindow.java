@@ -33,6 +33,7 @@ public class MainWindow extends JFrame {
 	private JMenuBar menuBar;
 	private JTabbedPane tabbedPane;
 	private GraphInputView graphInputView;
+	private File saveFile;
 
 	/**
 	 * Launch the application.
@@ -80,35 +81,38 @@ public class MainWindow extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser();
-				int returnVal = chooser.showOpenDialog(MainWindow.this);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File selectedFile = chooser.getSelectedFile();
-					try {
-						System.out.println(selectedFile.getAbsolutePath());
-						graphInputView.save(selectedFile.getAbsolutePath());
-					} catch (JsonProcessingException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-
+				if(saveFile!=null)
+				{
+					save(saveFile);
 				}
+				else
+					saveTo();
 			}
 		});
 		mnFile.add(mnSave);
+		JMenuItem mnSaveTo = new JMenuItem("Save To");
+		mnSaveTo.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				saveTo();
+			}
+		});
+		mnFile.add(mnSaveTo);
 		JMenuItem mnLoad = new JMenuItem("Load");
 		mnLoad.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooser = new JFileChooser();
+				chooser.setCurrentDirectory(new File("").getAbsoluteFile());
 				int returnVal = chooser.showOpenDialog(MainWindow.this);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File selectedFile = chooser.getSelectedFile();
 					try {
 						System.out.println(selectedFile.getAbsolutePath());
 						graphInputView.load(selectedFile.getAbsolutePath());
+						saveFile=selectedFile;
 					} catch (JsonProcessingException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -173,6 +177,29 @@ public class MainWindow extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent e) {
+		}
+	}
+	private void save(File toFile)
+	{
+		try {
+			System.out.println(toFile.getAbsolutePath());
+			graphInputView.save(toFile.getAbsolutePath());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	private void saveTo()
+	{
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		chooser.setCurrentDirectory(new File("").getAbsoluteFile());
+		int returnVal = chooser.showSaveDialog(MainWindow.this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = chooser.getSelectedFile();
+			saveFile=selectedFile;
+			save(selectedFile);
 		}
 	}
 

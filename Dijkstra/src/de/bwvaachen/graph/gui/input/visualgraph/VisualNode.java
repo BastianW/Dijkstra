@@ -17,51 +17,51 @@ public class VisualNode extends JLabel implements INode {
 	public boolean recView = false;
 	public VisualGraph visualGraph = null;
 	private Node node;
+
 	public Node getNode() {
 		return node;
 	}
 
-	private NodeDisplayProvider nodeDisplayProvider=new DefaultNodeDisplayProvider();;
+	private NodeDisplayProvider nodeDisplayProvider = new DefaultNodeDisplayProvider();;
 	private Number weight;
-
 
 	public VisualNode(VisualGraph graph, Node node, Number weight) {
 		super(node.getName());
-		this.weight=weight;
+		this.weight = weight;
 		setHorizontalAlignment(CENTER);
 		this.visualGraph = graph;
 		setSize(80, 20);// TODO
 		this.node = node;
-		//setOpaque(true);
+		// setOpaque(true);
 		addMouseMotionListener(new MouseMotionAdapter() {
-			private long last=System.currentTimeMillis();
-			private Point offset=new Point(0,0);
+			private long last = System.currentTimeMillis();
+			private Point offset = new Point(0, 0);
+
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(System.currentTimeMillis()-last>500)
-				{
+				if (System.currentTimeMillis() - last > 500) {
 					Point point = visualGraph.getMousePosition();
 					Point location = VisualNode.this.getLocation();
-					if(point==null)
-					{
-						offset=new Point(0,0);
-					}
-					else
-					{
-						offset=new Point(point.x-location.x,point.y-location.y);
+					if (point == null) {
+						offset = new Point(0, 0);
+					} else {
+						offset = new Point(point.x - location.x, point.y
+								- location.y);
 					}
 				}
-				if(e.isAltDown())
-				{
-				
-				Point point = visualGraph.getMousePosition();
-				if (point != null) {
-				point.x-=offset.x;
-				point.y-=offset.y;
-					setBounds(new Rectangle(point, getSize()));
-					visualGraph.recalculate();
-				}}
-				last=System.currentTimeMillis();
+				if (e.isAltDown()) {
+
+					Point point = visualGraph.getMousePosition();
+					if (point != null) {
+						point.x -= offset.x;
+						point.y -= offset.y;
+						setBounds(new Rectangle(point, getSize()));
+						visualGraph.recalculate();
+						visualGraph.repaint(0, 0, visualGraph.getWidth(),
+								visualGraph.getHeight());
+					}
+				}
+				last = System.currentTimeMillis();
 			}
 		});
 	}
@@ -101,9 +101,7 @@ public class VisualNode extends JLabel implements INode {
 				}
 
 			}
-		}
-		else
-		{
+		} else {
 			return getCenter();
 		}
 
@@ -112,7 +110,7 @@ public class VisualNode extends JLabel implements INode {
 
 	public Point getCenter() {
 		Rectangle rec = this.getBounds();
-		Point point = new Point(rec.x + rec.width / 2, rec.y + rec.height/2);
+		Point point = new Point(rec.x + rec.width / 2, rec.y + rec.height / 2);
 		return point;
 	}
 
@@ -129,6 +127,7 @@ public class VisualNode extends JLabel implements INode {
 		this.weight = weight;
 		repaint();
 	}
+
 	public String toString() {
 		return node.toString();
 	}
@@ -144,53 +143,70 @@ public class VisualNode extends JLabel implements INode {
 	@Override
 	public void paintComponent(Graphics g) {
 		setText(getLabel());
-		Color c=g.getColor();
-		g.setColor(Color.green);
-		if(recView)
-		g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
-		else
-		g.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+		Color c = g.getColor();
+		g.setColor(this.nodeDisplayProvider.labelColor());
+		if (this.nodeDisplayProvider.opaque()) {
+			if (recView)
+				g.fillRect(0, 0, getWidth() - 1, getHeight() - 1);
+			else
+				g.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
+		} else {
+			if (recView)
+				g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			else
+				g.drawOval(0, 0, getWidth() - 1, getHeight() - 1);
+		}
 		g.setColor(c);
 		drawDeco(g);
 		super.paintComponent(g);
 	}
 
-
-	private String getLabel()
-	{
+	private String getLabel() {
 		return this.nodeDisplayProvider.label(getName(), this.weight);
 	}
-	private void drawDeco(Graphics g)
-	{
-		Point p=this.nodeDisplayProvider.decorationAnchor(this);
-		String deco=this.nodeDisplayProvider.decorate(getName(), weight);
-		if(deco!=null)
-		{
+
+	private void drawDeco(Graphics g) {
+		Point p = this.nodeDisplayProvider.decorationAnchor(this);
+		String deco = this.nodeDisplayProvider.decorate(getName(), weight);
+		if (deco != null) {
 			g.drawString(deco, p.x, p.y);
 		}
 	}
-	
-	
+
 	public void setNodeDisplayProvider(NodeDisplayProvider provider) {
-		if(provider!=null)
-		this.nodeDisplayProvider=provider;
-		else
-		{
-			this.nodeDisplayProvider=new DefaultNodeDisplayProvider();
+		if (provider != null)
+			this.nodeDisplayProvider = provider;
+		else {
+			this.nodeDisplayProvider = new DefaultNodeDisplayProvider();
 		}
-		
+
 	}
-	
-	class DefaultNodeDisplayProvider extends NodeDisplayProvider
-	{
+
+	class DefaultNodeDisplayProvider extends NodeDisplayProvider {
 		@Override
 		public String label(String node, Number weight) {
 			return node;
 		}
+
 		@Override
 		public String decorate(String node, Number weight) {
 			return null;
 		}
+
+		@Override
+		public String getTooltipText(VisualNode node) {
+			return null;
+		}
+
+		@Override
+		public boolean opaque() {
+			return visualGraph.getProperties().isLblOpaque();
+		}
+
+		@Override
+		public Color labelColor() {
+			return  visualGraph.getProperties().getLblColor();
+		}
 	}
-	
+
 }

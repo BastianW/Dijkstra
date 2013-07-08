@@ -1,13 +1,12 @@
 package de.bwvaachen.graph.gui.input;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
@@ -17,18 +16,19 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JViewport;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.Scrollable;
 
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
@@ -52,27 +52,19 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	private HashSet<IGraphComponentChangedListener> graphComponentListener = new HashSet<IGraphComponentChangedListener>();
 	private NodeDisplayProvider nodeDisplayProvider;
 	private boolean editMode;
+	private double scaleFactor=1;
 	
 	private VisualGraphProperties properties;
+	private JScrollPane scrollPane;
 
 	/**
 	 * Create the panel.
 	 */
 	public VisualGraph(boolean editMode) {
 		this.editMode = editMode;
-		setLayout(new GridLayout(0, 1));
+		setLayout(new BorderLayout());
 		graph = new Graph();
-		JScrollPane scrollPane = new JScrollPane();
-		add(scrollPane);
-		panel = new JPanel() {
-			@Override
-			public void paintComponent(Graphics g) {
-				if(properties.isBackgroundImageIsShown()&& properties.getBackgroundImage()!=null)
-				g.drawImage(properties.getBackgroundImage(), 0, 0, VisualGraph.this);
-				super.paintComponent(g);
-				drawPathsAndConnection((Graphics2D) g);
-			}
-		};
+		panel = new MyPanel();
 
 		if (editMode) {
 			JPopupMenu popupMenu = new JPopupMenu();
@@ -119,16 +111,22 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 				public void actionPerformed(ActionEvent e) {
 					VisualGraphPropertiesDialog visualGraphPropertiesDialog=new  VisualGraphPropertiesDialog(properties);
 					visualGraphPropertiesDialog.setVisible(true);
+					panel.setPreferredSize(properties.getSize());
+					scrollPane.revalidate();
+					recalculate();
+					repaint(0, 0, getSize().width, getSize().height);
 				}
 			});
 			popupMenu.add(mntmProperties);
 		}
 		panel.setLayout(null);
-		// add(panel);
 		panel.setSize(new Dimension(430, 430));
-		panel.setMinimumSize(new Dimension(430, 430));
-		scrollPane.setViewportView(panel);
-		properties=new VisualGraphProperties(1,1,3,Color.BLACK,Color.BLACK,Color.GREEN,true,false,true,null,panel.getSize());
+		panel.setPreferredSize(new Dimension(430, 430));
+//		panel.setMinimumSize(new Dimension(430, 430));
+		panel.setAutoscrolls(true);
+		scrollPane = new JScrollPane(panel);
+		add(scrollPane,BorderLayout.CENTER);
+		properties=new VisualGraphProperties(1,1,3,Color.BLACK,Color.BLACK,Color.GREEN,true,false,false,null,panel.getSize());
 	}
 
 
@@ -140,6 +138,8 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 
 	public VisualGraph(VisualGraphContainer container, boolean editMode) {
 		this(container.getGraph(), editMode);
+		this.properties=container.getProperties();
+		setPositionOfNodes(container);
 		repaint(0, 0, getSize().width, getSize().height);
 	}
 
@@ -149,11 +149,13 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			if (visualNode != null)
 				visualNode.setLocation(entry.getValue());
 		}
+		properties=container.getProperties();
+		panel.setPreferredSize(properties.getSize());
 	}
 
 	public VisualGraphContainer getVisualGraphContainer() {
 		Graph graph = new Graph(this.graph);
-		return new VisualGraphContainer(graph, this.nodes);
+		return new VisualGraphContainer(graph, this.nodes, properties);
 	}
 
 	private void addNodeAtPosition(Node node, Point position) {
@@ -194,22 +196,28 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 						position.x = 0;
 						position.y += 30;
 					}
-
 				}
 				panel.add(visualNode);
 				nodes.put(node, visualNode);
 			}
 			this.graph = graph;
 		}
-		repaint(0, 0, getSize().width, getSize().height);
+update();
 	}
 
+	public double getScaleFactor()
+	{
+		return this.scaleFactor;
+	}
+	public void setScaleFactor(double scaleFactor)
+	{
+		this.scaleFactor=scaleFactor;
+	}
 	private void createPopupForVisualNode(final VisualNode visualNode) {
 		if (editMode) {
 			final JPopupMenu popupMenu = new JPopupMenu("Popup");
 			visualNode.addMouseListener(new MouseAdapter() {
 				public void mousePressed(MouseEvent ev) {
-					MouseEvent test = ev;
 					if (ev.getButton() == 3) {
 						Point mousePosition = VisualGraph.this
 								.getMousePosition();
@@ -296,7 +304,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		for (VisualNode node : nodes.values()) {
 			node.setNodeDisplayProvider(this.nodeDisplayProvider);
 		}
-		repaint(0, 0, getSize().width, getSize().height);
+		update();
 	}
 
 	private Number calculateWeight(Graph graph, Node currentNode) {
@@ -363,7 +371,11 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 				Point startPoint = startNode.getOutputAnchor(endNode);
 				Point endPoint = endNode.getOutputAnchor(startNode);
 
-				g2d.drawString(connection.getEdge().getWeight().toString(),
+				double weight=connection.getEdge().getWeight().doubleValue();
+				String str_Weight=String.format("%.2f", weight);
+				if(weight==(int)weight)
+					str_Weight=""+(int)weight;
+				g2d.drawString(str_Weight,
 						(startPoint.x - endPoint.x) / 2 + endPoint.x,
 						(startPoint.y - endPoint.y) / 2 + endPoint.y);
 			}
@@ -470,6 +482,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 			
 			c.getEdge().setWeight(weight);
 		}
+		commitChange();
 	}
 
 
@@ -477,4 +490,36 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		if(properties.isScaleFactorIsUsed())
 			calculateConnectionWeight();		
 	}
+	@Override
+	public void paint(Graphics g) {
+		Graphics2D g2d=(Graphics2D) g;
+		if(scaleFactor==0)
+			scaleFactor=0.1;
+		g2d.scale(scaleFactor, scaleFactor);
+		super.paint(g);
+	}
+	class MyPanel extends JPanel{
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			if(properties.isBackgroundImageIsShown()&& properties.getBackgroundImage()!=null)
+			g.drawImage(properties.getBackgroundImage(), 0, 0,(int)panel.getPreferredSize().getWidth(),(int)panel.getPreferredSize().getHeight(), VisualGraph.this);
+			drawPathsAndConnection((Graphics2D) g);
+		}	
+
+	}
+
+	public VisualGraphProperties getProperties() {
+		return properties;
+	}
+
+
+	public void update() {
+		setPreferredSize(properties.getSize());
+//		JViewport viewport = scrollPane.getViewport();
+		repaint(0, 0, properties.getSize().width, properties.getSize().height);
+//		scrollPane.setViewport(viewport);
+		scrollPane.revalidate();
+		
+	};
 }

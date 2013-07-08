@@ -101,7 +101,7 @@ public class GraphInputView extends JPanel implements IGraphComponentChangedList
 	public void save(String path) throws JsonGenerationException, JsonMappingException, IOException
 	{
 		HashMap<Node, Point> visualNodeMap = visualGraph.getVisualGraphContainer().getPointMap();
-		new VisualGraphContainer(graph, visualNodeMap,false).save(path);
+		new VisualGraphContainer(graph, visualNodeMap,visualGraph.getProperties(),false).save(path);
 	}
 	public void load(String path) throws JsonProcessingException, IOException
 	{

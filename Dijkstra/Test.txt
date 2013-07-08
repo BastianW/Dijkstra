@@ -1,1 +1,155 @@
-{"nodes":[{"name":"A"},{"name":"B"},{"name":"C"}],"paths":[],"sortedConnections":[{"startNode":{"name":"B"},"endNode":{"name":"C"},"edge":{"weight":7}}]}
+{
+  "properties" : {
+    "scaleFactor" : 1,
+    "connectionWeight" : 1,
+    "pathWeight" : 3,
+    "connectionColor" : -16777216,
+    "pathColor" : -16777216,
+    "lblColor" : -16711936,
+    "lblOpaque" : true,
+    "backgroundImageIsShown" : false,
+    "scaleFactorIsUsed" : false,
+    "backgroundImage" : null,
+    "size" : {
+      "x" : 430,
+      "y" : 430
+    }
+  },
+  "graph" : {
+    "nodes" : [ {
+      "name" : "D"
+    }, {
+      "name" : "E"
+    }, {
+      "name" : "A"
+    }, {
+      "name" : "B"
+    }, {
+      "name" : "C"
+    } ],
+    "paths" : [ ],
+    "sortedConnections" : [ {
+      "startNode" : {
+        "name" : "D"
+      },
+      "endNode" : {
+        "name" : "C"
+      },
+      "edge" : {
+        "weight" : 1
+      }
+    }, {
+      "startNode" : {
+        "name" : "D"
+      },
+      "endNode" : {
+        "name" : "B"
+      },
+      "edge" : {
+        "weight" : 1
+      }
+    }, {
+      "startNode" : {
+        "name" : "D"
+      },
+      "endNode" : {
+        "name" : "A"
+      },
+      "edge" : {
+        "weight" : 1
+      }
+    }, {
+      "startNode" : {
+        "name" : "D"
+      },
+      "endNode" : {
+        "name" : "E"
+      },
+      "edge" : {
+        "weight" : 1
+      }
+    }, {
+      "startNode" : {
+        "name" : "E"
+      },
+      "endNode" : {
+        "name" : "B"
+      },
+      "edge" : {
+        "weight" : 4
+      }
+    }, {
+      "startNode" : {
+        "name" : "E"
+      },
+      "endNode" : {
+        "name" : "A"
+      },
+      "edge" : {
+        "weight" : 4
+      }
+    }, {
+      "startNode" : {
+        "name" : "E"
+      },
+      "endNode" : {
+        "name" : "C"
+      },
+      "edge" : {
+        "weight" : 5
+      }
+    }, {
+      "startNode" : {
+        "name" : "A"
+      },
+      "endNode" : {
+        "name" : "C"
+      },
+      "edge" : {
+        "weight" : 7
+      }
+    }, {
+      "startNode" : {
+        "name" : "B"
+      },
+      "endNode" : {
+        "name" : "C"
+      },
+      "edge" : {
+        "weight" : 8
+      }
+    }, {
+      "startNode" : {
+        "name" : "A"
+      },
+      "endNode" : {
+        "name" : "B"
+      },
+      "edge" : {
+        "weight" : 8
+      }
+    } ]
+  },
+  "pointMap" : {
+    "D" : {
+      "x" : 135,
+      "y" : 335
+    },
+    "E" : {
+      "x" : 353,
+      "y" : 115
+    },
+    "A" : {
+      "x" : 40,
+      "y" : 265
+    },
+    "B" : {
+      "x" : 77,
+      "y" : 115
+    },
+    "C" : {
+      "x" : 390,
+      "y" : 265
+    }
+  }
+}

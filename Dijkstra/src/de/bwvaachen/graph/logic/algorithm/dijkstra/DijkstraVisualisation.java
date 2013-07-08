@@ -1,11 +1,14 @@
 package de.bwvaachen.graph.logic.algorithm.dijkstra;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
+import javax.swing.JSlider;
 import javax.swing.JSplitPane;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,6 +26,8 @@ import de.bwvaachen.graph.logic.Node;
 
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class DijkstraVisualisation extends JPanel {
 
@@ -31,8 +36,10 @@ public class DijkstraVisualisation extends JPanel {
 	private VisualGraph visualGraph;
 	Dijkstra dijkstra;
 	private JProgressBar progressBar;
+	private JSlider slider;
 	/**
 	 * Create the panel.
+	 * @wbp.parser.constructor
 	 */
 	public DijkstraVisualisation(Graph graph) {
 		Set<Node> nodes = graph.getNodes();
@@ -65,19 +72,24 @@ public class DijkstraVisualisation extends JPanel {
 	}
 	
 	private void init(Object graphContainer, Node startNode) {
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setLayout(new BorderLayout());
 		
-		JScrollPane scrollPane = new JScrollPane();
-		add(scrollPane);
+//		JScrollPane scrollPane = new JScrollPane();
+//		add(scrollPane,BorderLayout.CENTER);
 		
 		JPanel panel = new JPanel();
-		scrollPane.setViewportView(panel);
+//		scrollPane.setViewportView(panel);
 		panel.setLayout(new BorderLayout(0, 0));
 		
+		add(panel,BorderLayout.CENTER);
 		if(graphContainer instanceof VisualGraphContainer)
+		{
 			visualGraph=new VisualGraph((VisualGraphContainer)graphContainer,false);
+		}
 		else
+		{
 			visualGraph=new VisualGraph((Graph) graphContainer,false);
+		}
 		visualGraph.setNodeDisplayProvider(new NodeDisplayProvider() {
 			
 			@Override
@@ -94,6 +106,18 @@ public class DijkstraVisualisation extends JPanel {
 					return Character.toString('\u221E');
 				return weight.toString();
 			}
+			@Override
+			public String getTooltipText(VisualNode node) {
+				return node.getName();
+			}
+			@Override
+			public boolean opaque() {
+				return visualGraph.getProperties().isLblOpaque();
+			}
+			@Override
+			public Color labelColor() {
+				return visualGraph.getProperties().getLblColor();
+			}
 		});
 
 		
@@ -103,14 +127,38 @@ public class DijkstraVisualisation extends JPanel {
 		else
 			dijkstra=new Dijkstra((Graph) graphContainer, startNode);
 		dijkstra.setLogger(logger);
+		
+		JPanel visualGraphPanel=new JPanel();
+		visualGraphPanel.setLayout(new BorderLayout());
+		visualGraphPanel.add(visualGraph,BorderLayout.CENTER);
+
+		slider = new JSlider(0,100);
+		slider.setValue(10);
+		slider.setOrientation(JSlider.VERTICAL);
+		slider.setMajorTickSpacing( 10 );
+		slider.setMinorTickSpacing( 1 );
+		slider.setBorder( BorderFactory.createTitledBorder("Scale"));
+		slider.setPaintTicks( true );
+	    slider.setPaintLabels( true );
+	    slider.setSnapToTicks( true );
+	    slider.addChangeListener( new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				visualGraph.setScaleFactor(slider.getValue()/10.0);
+				visualGraph.update();
+			}
+		});
+		visualGraphPanel.add(slider,BorderLayout.WEST);
+		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.7);
 		splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		splitPane.setLeftComponent(visualGraph);
+		splitPane.setLeftComponent(visualGraphPanel);
 		splitPane.setRightComponent(logger);
 		panel.add(splitPane, BorderLayout.CENTER);
 		JPanel control_Panel = new JPanel();
-		panel.add(control_Panel, BorderLayout.SOUTH);
+		add(control_Panel, BorderLayout.SOUTH);
 		
 		JButton btn_Previous = new JButton("");
 		btn_Previous.setIcon(new ImageIcon(PREVIOUS_PNG));
