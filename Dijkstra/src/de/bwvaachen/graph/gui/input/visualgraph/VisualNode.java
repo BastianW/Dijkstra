@@ -17,6 +17,7 @@ public class VisualNode extends JLabel implements INode {
 	public boolean recView = false;
 	public VisualGraph visualGraph = null;
 	private Node node;
+	private double[] sourceLocation=new double[2];
 
 	public Node getNode() {
 		return node;
@@ -52,13 +53,13 @@ public class VisualNode extends JLabel implements INode {
 				if (e.isAltDown()) {
 
 					Point point = visualGraph.getMousePosition();
+					double scaleFactor = visualGraph.getScaleFactor();
 					if (point != null) {
 						point.x -= offset.x;
 						point.y -= offset.y;
-						setBounds(new Rectangle(point, getSize()));
+						sourceLocation=new double[]{point.x/scaleFactor,point.y/scaleFactor};
 						visualGraph.recalculate();
-						visualGraph.repaint(0, 0, visualGraph.getWidth(),
-								visualGraph.getHeight());
+						visualGraph.update();
 					}
 				}
 				last = System.currentTimeMillis();
@@ -142,6 +143,7 @@ public class VisualNode extends JLabel implements INode {
 
 	@Override
 	public void paintComponent(Graphics g) {
+	updateLocation();
 		setText(getLabel());
 		Color c = g.getColor();
 		g.setColor(this.nodeDisplayProvider.labelColor());
@@ -207,6 +209,27 @@ public class VisualNode extends JLabel implements INode {
 		public Color labelColor() {
 			return  visualGraph.getProperties().getLblColor();
 		}
+
+		@Override
+		public Point getLocation(double[] originLocation) {
+			return new Point((int)originLocation[0],(int)originLocation[1]);
+		}
+	}
+	@Override
+	public void setLocation(int x, int y) {
+		sourceLocation=new double[]{x,y};
+		Point location = this.nodeDisplayProvider.getLocation(sourceLocation);
+		super.setLocation(location.x,location.y);
+	}
+	@Override
+	public void setLocation(Point p) {
+		sourceLocation=new double[]{p.x,p.y};
+		Point location = this.nodeDisplayProvider.getLocation(sourceLocation);
+		super.setLocation(location.x,location.y);
 	}
 
+	public void updateLocation() {
+		Point location = this.nodeDisplayProvider.getLocation(sourceLocation);
+		super.setLocation(location.x,location.y);		
+	}
 }

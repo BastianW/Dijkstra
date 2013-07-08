@@ -15,4 +15,5 @@ public abstract class NodeDisplayProvider {
 	public abstract boolean opaque();
 	public abstract Color labelColor();
 	public abstract String label(String node, Number weight);
+	public abstract Point getLocation(double[] originLocation);
 }

@@ -118,6 +118,11 @@ public class DijkstraVisualisation extends JPanel {
 			public Color labelColor() {
 				return visualGraph.getProperties().getLblColor();
 			}
+			@Override
+			public Point getLocation(double[] originLocation) {
+				double scaleFactor = visualGraph.getScaleFactor();
+				return new Point((int)(originLocation[0]*scaleFactor),(int)(originLocation[1]*scaleFactor));
+			}
 		});
 
 		
@@ -149,6 +154,7 @@ public class DijkstraVisualisation extends JPanel {
 				visualGraph.update();
 			}
 		});
+	    slider.setValue(11);
 		visualGraphPanel.add(slider,BorderLayout.WEST);
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -173,6 +179,7 @@ public class DijkstraVisualisation extends JPanel {
 				progressBar.setString(dijkstra.getCurrentSteps()+"/"+dijkstra.getMaxSteps());
 			}
 		});
+		visualGraph.update();
 		control_Panel.add(btn_Previous);
 		
 		JButton btn_Next = new JButton("");

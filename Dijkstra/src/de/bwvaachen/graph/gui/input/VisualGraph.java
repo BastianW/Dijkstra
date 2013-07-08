@@ -212,6 +212,11 @@ update();
 	public void setScaleFactor(double scaleFactor)
 	{
 		this.scaleFactor=scaleFactor;
+		properties.setScaleFactor((int) (properties.getScaleFactor()*1/scaleFactor));
+		for(Entry<Node,VisualNode>entry:nodes.entrySet())
+		{
+			entry.getValue().updateLocation();
+		}
 	}
 	private void createPopupForVisualNode(final VisualNode visualNode) {
 		if (editMode) {
@@ -490,20 +495,20 @@ update();
 		if(properties.isScaleFactorIsUsed())
 			calculateConnectionWeight();		
 	}
-	@Override
-	public void paint(Graphics g) {
-		Graphics2D g2d=(Graphics2D) g;
-		if(scaleFactor==0)
-			scaleFactor=0.1;
-		g2d.scale(scaleFactor, scaleFactor);
-		super.paint(g);
-	}
+
 	class MyPanel extends JPanel{
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			if(properties.isBackgroundImageIsShown()&& properties.getBackgroundImage()!=null)
+			{
+			Graphics2D g2d=(Graphics2D) g;
+			if(scaleFactor==0)
+				scaleFactor=0.1;
+			g2d.scale(scaleFactor, scaleFactor);
 			g.drawImage(properties.getBackgroundImage(), 0, 0,(int)panel.getPreferredSize().getWidth(),(int)panel.getPreferredSize().getHeight(), VisualGraph.this);
+			g2d.scale(1.0,1.0);
+			}
 			drawPathsAndConnection((Graphics2D) g);
 		}	
 
@@ -515,9 +520,9 @@ update();
 
 
 	public void update() {
-		setPreferredSize(properties.getSize());
+		panel.setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
 //		JViewport viewport = scrollPane.getViewport();
-		repaint(0, 0, properties.getSize().width, properties.getSize().height);
+		repaint();//(0, 0, properties.getSize().width, properties.getSize().height);
 //		scrollPane.setViewport(viewport);
 		scrollPane.revalidate();
 		
