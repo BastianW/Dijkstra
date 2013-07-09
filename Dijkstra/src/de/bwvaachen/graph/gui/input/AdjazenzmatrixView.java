@@ -39,6 +39,7 @@ import de.bwvaachen.graph.logic.algorithm.WeightedNode;
 
 public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener {
 
+	private static final Color GRID_COLOR = new Color(15717835);
 	static final Color DEFAULTCOLOR_JTEXTFIELD = UIManager
 			.getColor("TextField.background");
 	static final Color IVALID_INPUT = new Color(1.f, 0f, 0f, 0.5f);
@@ -109,6 +110,7 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener 
 		int countWeights = countNodes - 1;
 
 		labels = new JLabel[countWeights - 1];
+
 		nodeWeigths = new JTextField[countWeights][];
 		for (int i = 0; i < countWeights; i++) {
 			nodeWeigths[i] = new JTextField[countWeights - i];
@@ -124,11 +126,15 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener 
 		for (int i = 0; i < countWeights; i++) {
 			if (i == 0) {
 				JTextField textField = createNodeNameInput(i);
+				textField.setBackground(GRID_COLOR);
 				nodeNames[i] = textField;
 				nodeNames[i].setText(nodes.get(i).toString());
 				panel.add(textField);
 			} else {
 				JLabel label = new JLabel();
+				label.setOpaque(true);
+				if(i%2==0)
+					label.setBackground(GRID_COLOR);
 				labels[i - 1] = label;
 				labels[i - 1].setText(nodeNames[i].getText());
 				panel.add(label);
@@ -203,6 +209,10 @@ public class AdjazenzmatrixView extends JPanel implements IGraphChangedListener 
 		textField.setInputVerifier(weightListener);
 		textField.addKeyListener(weightListener);
 		textField.addFocusListener(weightListener);
+		if(indexX%2==0)
+		{
+			textField.setBackground(GRID_COLOR);
+		}
 		return textField;
 	}
 
