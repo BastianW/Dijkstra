@@ -212,7 +212,8 @@ public class VisualNode extends JLabel implements INode {
 
 		@Override
 		public Point getLocation(double[] originLocation) {
-			return new Point((int)originLocation[0],(int)originLocation[1]);
+			double scaleFactor = visualGraph.getScaleFactor();
+			return new Point((int)(originLocation[0]*scaleFactor),(int)(originLocation[1]*scaleFactor));
 		}
 	}
 	@Override

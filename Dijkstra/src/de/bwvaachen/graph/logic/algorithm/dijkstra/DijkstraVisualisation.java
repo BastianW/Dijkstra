@@ -36,7 +36,6 @@ public class DijkstraVisualisation extends JPanel {
 	private VisualGraph visualGraph;
 	Dijkstra dijkstra;
 	private JProgressBar progressBar;
-	private JSlider slider;
 	/**
 	 * Create the panel.
 	 * @wbp.parser.constructor
@@ -136,26 +135,6 @@ public class DijkstraVisualisation extends JPanel {
 		JPanel visualGraphPanel=new JPanel();
 		visualGraphPanel.setLayout(new BorderLayout());
 		visualGraphPanel.add(visualGraph,BorderLayout.CENTER);
-
-		slider = new JSlider(0,100);
-		slider.setValue(10);
-		slider.setOrientation(JSlider.VERTICAL);
-		slider.setMajorTickSpacing( 10 );
-		slider.setMinorTickSpacing( 1 );
-		slider.setBorder( BorderFactory.createTitledBorder("Scale"));
-		slider.setPaintTicks( true );
-	    slider.setPaintLabels( true );
-	    slider.setSnapToTicks( true );
-	    slider.addChangeListener( new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				visualGraph.setScaleFactor(slider.getValue()/10.0);
-				visualGraph.update();
-			}
-		});
-
-		visualGraphPanel.add(slider,BorderLayout.WEST);
 		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setResizeWeight(0.7);

@@ -22,13 +22,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.Scrollable;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import de.bwvaachen.graph.gui.input.controller.IGraphChangedListener;
 import de.bwvaachen.graph.gui.input.controller.IGraphComponentChangedListener;
@@ -56,6 +60,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 	
 	private VisualGraphProperties properties;
 	private JScrollPane scrollPane;
+	private JSlider slider;
 
 	/**
 	 * Create the panel.
@@ -65,7 +70,24 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 		setLayout(new BorderLayout());
 		graph = new Graph();
 		panel = new MyPanel();
+		slider = new JSlider(0,100);
+		slider.setValue(10);
+		slider.setOrientation(JSlider.VERTICAL);
+		slider.setMajorTickSpacing( 10 );
+		slider.setMinorTickSpacing( 1 );
+		slider.setBorder( BorderFactory.createTitledBorder("Scale0.1"));
+		slider.setPaintTicks( true );
+	    slider.setPaintLabels( true );
+	    slider.setSnapToTicks( true );
+	    slider.addChangeListener( new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				VisualGraph.this.setScaleFactor(slider.getValue()/10.0);
+				VisualGraph.this.update();
+			}
+		});
 
+		add(slider,BorderLayout.WEST);
 		if (editMode) {
 			JPopupMenu popupMenu = new JPopupMenu();
 			addPopup(panel, popupMenu);
@@ -506,9 +528,9 @@ update();
 			Graphics2D g2d=(Graphics2D) g;
 			if(scaleFactor==0)
 				scaleFactor=0.1;
-			g2d.scale(scaleFactor, scaleFactor);
-			g.drawImage(properties.getBackgroundImage(), 0, 0,(int)panel.getPreferredSize().getWidth(),(int)panel.getPreferredSize().getHeight(), VisualGraph.this);
-			g2d.scale(1.0,1.0);
+//			g2d.scale(scaleFactor, scaleFactor);
+			g.drawImage(properties.getBackgroundImage(), 0, 0,(int)(properties.getSize().getWidth()*scaleFactor),(int)(properties.getSize().getHeight()*scaleFactor), VisualGraph.this);
+//			g2d.scale(1.0,1.0);
 			}
 			drawPathsAndConnection((Graphics2D) g);
 		}	
@@ -522,11 +544,14 @@ update();
 
 	public void update() {
 //		setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
+//		setSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
 		panel.setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
+		//panel.setSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
+//		scrollPane.setPreferredSize(new Dimension((int)(properties.getSize().width*scaleFactor),(int)( properties.getSize().height*scaleFactor)));
 //		JViewport viewport = scrollPane.getViewport();
-		repaint();//(0, 0, properties.getSize().width, properties.getSize().height);
+//(0, 0, properties.getSize().width, properties.getSize().height);
 //		scrollPane.setViewport(viewport);
 		scrollPane.revalidate();
-		
+		repaint();
 	};
 }
