@@ -178,7 +178,7 @@ public class VisualGraph extends JPanel implements IGraphChangedListener {
 
 	public VisualGraphContainer getVisualGraphContainer() {
 		Graph graph = new Graph(this.graph);
-		return new VisualGraphContainer(graph, this.nodes, properties);
+		return new VisualGraphContainer(graph, this.nodes, properties,getScaleFactor());
 	}
 
 	private void addNodeAtPosition(Node node, Point position) {
@@ -235,7 +235,7 @@ update();
 	public void setScaleFactor(double scaleFactor)
 	{
 		this.scaleFactor=scaleFactor;
-		properties.setScaleFactor((int) (properties.getScaleFactor()*1/scaleFactor));
+//		properties.setScaleFactor((int) (properties.getScaleFactor()*1.0/scaleFactor));
 		for(Entry<Node,VisualNode>entry:nodes.entrySet())
 		{
 			entry.getValue().updateLocation();
@@ -506,7 +506,7 @@ update();
 			
 			int x=p1.x-p2.x;
 			int y=p1.y-p2.y;
-			weight=Math.sqrt(x*x+y*y)*properties.getScaleFactor();
+			weight=Math.sqrt(x*x+y*y)*properties.getScaleFactor()/scaleFactor;
 			
 			c.getEdge().setWeight(weight);
 		}

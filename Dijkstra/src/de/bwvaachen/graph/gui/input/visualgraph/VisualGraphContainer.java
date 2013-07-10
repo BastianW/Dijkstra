@@ -25,10 +25,18 @@ public class VisualGraphContainer {
 		this.pointMap = visualNodeMap;
 	}
 	public VisualGraphContainer(Graph graph,  HashMap<Node, VisualNode> visualNodeMap, VisualGraphProperties properties) {
+		this(graph, visualNodeMap, properties, 1);
+	}
+	public VisualGraphContainer(Graph graph,  HashMap<Node, VisualNode> visualNodeMap, VisualGraphProperties properties, double currentScaleFactor) {
 		this.graph=graph;
 		if(visualNodeMap!=null)
 		for(Entry<Node,VisualNode>entry:visualNodeMap.entrySet())
-		this.pointMap.put(entry.getKey(), entry.getValue().getLocation());
+		{
+			Point location = entry.getValue().getLocation();
+			location.x*=1.0/currentScaleFactor;
+			location.y*=1.0/currentScaleFactor;
+			this.pointMap.put(entry.getKey(), location);
+		}
 		this.properties=properties;
 	}
 	public VisualGraphContainer(Graph graph,  HashMap<Node, Point> pointMap, VisualGraphProperties properties, boolean Signaturveränderer) {
